@@ -19,19 +19,12 @@ if "run_redirect" not in st.session_state:
     st.session_state.run_redirect = False
 
 if "target_page" not in st.session_state:
-    st.session_state.target_page = "Transactions" # Default page ya kuelekea baada ya login
+    st.session_state.target_page = "1_Transactions.py"
 
-# --- UKURASA WA PILI: Kuchagua uelekee wapi (Transactions, Development, au Sales) ---
+# --- THE PERMANENT ERROR FIX: Switch page safely OUTSIDE of the forms ---
 if st.session_state.run_redirect:
     st.session_state.run_redirect = False  # Reset flag
-    
-    # Hapa inaji-direct yenyewe kulingana na page uliyochagua
-    if st.session_state.target_page == "Transactions":
-        st.switch_page("pages/1_Transactions.py")
-    elif st.session_state.target_page == "Development":
-        st.switch_page("pages/2_Development.py")
-    elif st.session_state.target_page == "Sales":
-        st.switch_page("pages/3_Sales.py")
+    st.switch_page(f"pages/{st.session_state.target_page}")
 
 # --- High-Quality White Broiler Background Image Link ---
 broiler_bg_url = "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?q=80&w=1600&auto=format&fit=crop"
@@ -141,8 +134,8 @@ st.markdown(f"""
         margin-top: -5px;
     }}
 
-    /* SOLID PURE WHITE CARD CONTAINER BOX */
-    .stForm, div[data-testid="stVerticalBlockBorderWrapper"] {{
+    /* SOLID PURE WHITE CARD CONTAINER BOX (Fixed for Streamlit compatibility) */
+    div[data-testid="stForm"] {{
         background-color: #FFFFFF !important;
         border: none !important;
         border-radius: 20px !important;
@@ -150,7 +143,6 @@ st.markdown(f"""
         padding: 40px !important;
         max-width: 480px !important;
         margin: auto !important;
-        margin-top: 15vh !important;
     }}
 
     /* PREMIUM DARK GREEN HEADINGS */
@@ -179,25 +171,24 @@ st.markdown(f"""
         font-size: 15px !important;
     }}
 
-    /* FIX KWA AJILI YA VITUFE VYA ELECTRIC GREEN NDANI YA FORMS */
+    /* GLOWING ELECTRIC GREEN BUTTONS (Football Predictor Style) */
     div[data-testid="stForm"] button {{
-        background-color: #00E676 !important; /* Vivid Electric Green */
-        color: #000000 !important;           /* Sharp Black Text */
+        background-color: #00E676 !important; 
+        color: #000000 !important;          
         border-radius: 12px !important;       
         border: none !important;
         padding: 12px 20px !important;
         font-size: 16px !important;
         font-weight: 700 !important;
         letter-spacing: 0.5px;
-        box-shadow: 0 4px 12px rgba(0, 230, 118, 0.4) !important;
+        box-shadow: 0 0 15px rgba(0, 230, 118, 0.7) !important;
         transition: all 0.2s ease-in-out !important;
-        width: 100% !important;
     }}
     
     div[data-testid="stForm"] button:hover {{
-        background-color: #00FF5E !important; /* Glow zaidi ukisogeza mouse */
-        box-shadow: 0 6px 20px rgba(0, 230, 118, 0.7) !important;
-        transform: scale(1.02) !important;
+        background-color: #00FF5E !important; 
+        box-shadow: 0 0 25px rgba(0, 230, 118, 1.0) !important;
+        transform: scale(1.03) !important;
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -211,6 +202,9 @@ st.markdown(f"""
         <span class="brand-subtitle">{t['subtitle']}</span>
     </div>
 """, unsafe_allow_html=True)
+
+# Spacing container kuishusha form chini kidogo
+st.write("<br><br><br>", unsafe_allow_html=True)
 
 # 2. Central Layout Core Router
 _, center_col, _ = st.columns([1, 1.3, 1])
@@ -249,8 +243,8 @@ with center_col:
             username = st.text_input(t["phone_label"])
             password = st.text_input(t["pass_label"], type="password")
             
-            # CHAGUA SEHEMU YA KWENDA (Hii inaunganisha page unazotaka)
-            target = st.selectbox("Chagua Sehemu ya Kuingia", ["Transactions", "Development", "Sales"])
+            # Kuchagua sehemu ya kuelekea
+            target = st.selectbox("Chagua Sehemu / Section", ["1_Transactions.py", "2_Development.py", "3_Sales.py"])
             st.session_state.target_page = target
             
             btn_col1, btn_col2 = st.columns(2)
