@@ -2,7 +2,7 @@ import streamlit as st
 
 # --- Must be the first Streamlit command ---
 st.set_page_config(
-    page_title="Mfugeji Kwanza - Login",
+    page_title="Mfugaji Kwanza - Login",
     page_icon="🐔",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -18,10 +18,20 @@ if "auth_mode" not in st.session_state:
 if "run_redirect" not in st.session_state:
     st.session_state.run_redirect = False
 
-# --- Safe Redirect Logic ---
+if "target_page" not in st.session_state:
+    st.session_state.target_page = "Transactions" # Default page ya kuelekea baada ya login
+
+# --- UKURASA WA PILI: Kuchagua uelekee wapi (Transactions, Development, au Sales) ---
 if st.session_state.run_redirect:
-    st.session_state.run_redirect = False  
-    st.switch_page("pages/1_Transactions.py")
+    st.session_state.run_redirect = False  # Reset flag
+    
+    # Hapa inaji-direct yenyewe kulingana na page uliyochagua
+    if st.session_state.target_page == "Transactions":
+        st.switch_page("pages/1_Transactions.py")
+    elif st.session_state.target_page == "Development":
+        st.switch_page("pages/2_Development.py")
+    elif st.session_state.target_page == "Sales":
+        st.switch_page("pages/3_Sales.py")
 
 # --- High-Quality White Broiler Background Image Link ---
 broiler_bg_url = "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?q=80&w=1600&auto=format&fit=crop"
@@ -162,33 +172,32 @@ st.markdown(f"""
         font-family: 'Segoe UI', Arial, sans-serif !important;
     }}
 
-    /* HIGH LEGIBILITY INPUT LABELS */
+    /* HIGH LEGIBILITY INPUT LABELS (Dark Forest Green) */
     label[data-testid="stWidgetLabel"] p {{
         color: #16300B !important;
         font-weight: 700 !important;
         font-size: 15px !important;
     }}
 
-    /* CRITICAL FIX: Explicitly target both general buttons AND form submit buttons 
-       to force the bright electric green layout override.
-    */
-    div.stButton > button, div.stFormSubmitButton > button {{
+    /* FIX KWA AJILI YA VITUFE VYA ELECTRIC GREEN NDANI YA FORMS */
+    div[data-testid="stForm"] button {{
         background-color: #00E676 !important; /* Vivid Electric Green */
-        color: #000000 !important;          /* Sharp Black Text */
+        color: #000000 !important;           /* Sharp Black Text */
         border-radius: 12px !important;       
         border: none !important;
         padding: 12px 20px !important;
         font-size: 16px !important;
         font-weight: 700 !important;
         letter-spacing: 0.5px;
-        box-shadow: 0 4px 12px rgba(0, 230, 118, 0.3) !important;
-        transition: all 0.2s ease-in-out;
+        box-shadow: 0 4px 12px rgba(0, 230, 118, 0.4) !important;
+        transition: all 0.2s ease-in-out !important;
+        width: 100% !important;
     }}
     
-    div.stButton > button:hover, div.stFormSubmitButton > button:hover {{
-        background-color: #00C853 !important; 
-        box-shadow: 0 6px 16px rgba(0, 230, 118, 0.5) !important;
-        transform: scale(1.02);
+    div[data-testid="stForm"] button:hover {{
+        background-color: #00FF5E !important; /* Glow zaidi ukisogeza mouse */
+        box-shadow: 0 6px 20px rgba(0, 230, 118, 0.7) !important;
+        transform: scale(1.02) !important;
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -239,6 +248,10 @@ with center_col:
             
             username = st.text_input(t["phone_label"])
             password = st.text_input(t["pass_label"], type="password")
+            
+            # CHAGUA SEHEMU YA KWENDA (Hii inaunganisha page unazotaka)
+            target = st.selectbox("Chagua Sehemu ya Kuingia", ["Transactions", "Development", "Sales"])
+            st.session_state.target_page = target
             
             btn_col1, btn_col2 = st.columns(2)
             with btn_col1:
