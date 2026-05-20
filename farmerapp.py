@@ -2,6 +2,12 @@ import streamlit as st
 from datetime import datetime, date
 import time
 
+# ==========================================
+# SUPABASE CONNECTION SETUP
+# ==========================================
+SUPABASE_URL = "https://nmdvmarfpujdxidmtlxc.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tZHZtYXJmcHVqZHhpZG10bHhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyOTU3NjksImV4cCI6MjA5NDg3MTc2OX0.yAVCEbNjoGlI9gkvUqvrZLSaK0i4x5LmanJo2KoFfrg"
+
 # --- Page Configuration ---
 st.set_page_config(
     page_title="Mfugaji Kwanza - Broiler Manager",
