@@ -1,49 +1,81 @@
 import streamlit as st
 
-# --- Page Configuration ---
+# --- Must be the first Streamlit command ---
 st.set_page_config(
-    page_title="Mfugeji Kwanza - Transactions",
+    page_title="Mfugeji Kwanza - Login",
     page_icon="🐔",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# --- Initialize Language Session State ---
+# --- Initialize session states safely ---
 if "language" not in st.session_state:
     st.session_state.language = "English"
 
-# --- High-Quality White Broiler Background ---
+if "auth_mode" not in st.session_state:
+    st.session_state.auth_mode = "landing"
+
+if "run_redirect" not in st.session_state:
+    st.session_state.run_redirect = False
+
+# --- Safe Redirect Logic ---
+if st.session_state.run_redirect:
+    st.session_state.run_redirect = False  
+    st.switch_page("pages/1_Transactions.py")
+
+# --- High-Quality White Broiler Background Image Link ---
 broiler_bg_url = "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?q=80&w=1600&auto=format&fit=crop"
 
-# --- Translations Dictionary for Transactions ---
+# --- Translation Dictionary ---
 translations = {
     "English": {
         "subtitle": "Modern Solutions for Every Poultry Farmer",
-        "welcome": "Welcome back, Farmer!",
-        "instruction": "What transaction would you like to perform today?",
-        "choice_inputs": "🛒 Farm Inputs",
-        "choice_withdraw": "💰 Withdraw Funds",
-        "desc_inputs": "Purchase feeds, vaccines, and equipment directly for your flock.",
-        "desc_withdraw": "Transfer your poultry sale earnings straight to your mobile wallet.",
-        "selected_msg": "You selected:"
+        "heading_landing": "Unlock your farm's true profit potential",
+        "subtext_landing": "Log in or sign up to get started",
+        "login_btn": "Log In",
+        "signup_btn": "Sign Up",
+        "heading_login": "Welcome Back",
+        "subtext_login": "Enter details to access transactions",
+        "phone_label": "Phone Number or Email",
+        "pass_label": "Password",
+        "proceed_btn": "Proceed to Account",
+        "back_btn": "← Back",
+        "heading_signup": "Create Account",
+        "subtext_signup": "Register your poultry farm profile",
+        "name_label": "Full Farmer Name",
+        "phone_signup_label": "Phone Number (For Payments)",
+        "pass_signup_label": "Create Security Password",
+        "complete_btn": "Complete Registration",
+        "error_fields": "All fields are required.",
+        "success_reg": "Account created successfully!"
     },
     "Swahili": {
         "subtitle": "Ufumbuzi wa Kisasa kwa Kila Mfugaji wa Kuku",
-        "welcome": "Karibu tena, Mfugaji!",
-        "instruction": "Je, ungependa kufanya muamala gani leo?",
-        "choice_inputs": "🛒 Pembejeo za Shamba",
-        "choice_withdraw": "💰 Kutoa Fedha",
-        "desc_inputs": "Nunua vyakula, chanjo, na vifaa moja kwa moja kwa ajili ya kuku wako.",
-        "desc_withdraw": "Hamisha mapato ya mauzo ya kuku moja kwa moja kwenda kwenye pochi yako ya simu.",
-        "selected_msg": "Umechagua:"
+        "heading_landing": "Fungua uwezo halisi wa faida wa shamba lako",
+        "subtext_landing": "Ingia au jisajili ili kuanza",
+        "login_btn": "Ingia",
+        "signup_btn": "Jisajili",
+        "heading_login": "Karibu Tena",
+        "subtext_login": "Ingiza maelezo ili kupata miamala",
+        "phone_label": "Namba ya Simu au Barua Pepe",
+        "pass_label": "Nenosiri",
+        "proceed_btn": "Endelea kwenye Akaunti",
+        "back_btn": "← Nyuma",
+        "heading_signup": "Fungua Akaunti",
+        "subtext_signup": "Sajili wasifu wa shamba lako la kuku",
+        "name_label": "Jina Kamili la Mfugaji",
+        "phone_signup_label": "Namba ya Simu (Kwa Ajili ya Malipo)",
+        "pass_signup_label": "Weka Nenosiri la Usalama",
+        "complete_btn": "Kamilisha Usajili",
+        "error_fields": "Sehemu zote zinahitajika.",
+        "success_reg": "Akaunti imefunguliwa kwa mafanikio!"
     }
 }
 
-# Apply current language mapping
 lang = st.session_state.language
 t = translations[lang]
 
-# --- Frontend CSS Injector (Vibrant Green Buttons + Pure White Cards) ---
+# --- Frontend CSS Layout Engine ---
 st.markdown(f"""
     <style>
     /* Full-screen layout background */
@@ -99,71 +131,71 @@ st.markdown(f"""
         margin-top: -5px;
     }}
 
-    /* Solid White Premium Dashboard Cards */
-    .transaction-card {{
+    /* SOLID PURE WHITE CARD CONTAINER BOX */
+    .stForm, div[data-testid="stVerticalBlockBorderWrapper"] {{
         background-color: #FFFFFF !important;
+        border: none !important;
         border-radius: 20px !important;
-        box-shadow: 0 12px 28px rgba(0,0,0,0.5) !important;
-        padding: 35px !important;
-        text-align: center;
-        margin-top: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.6) !important;
+        padding: 40px !important;
+        max-width: 480px !important;
+        margin: auto !important;
+        margin-top: 15vh !important;
     }}
 
-    /* Premium Dark Green Typography */
-    .green-main-heading {{
+    /* PREMIUM DARK GREEN HEADINGS */
+    .green-heading {{
         color: #16300B !important;
         font-weight: 800 !important;
-        font-size: 32px !important;
-        font-family: 'Segoe UI', Arial, sans-serif !important;
-        margin-bottom: 5px;
-    }}
-
-    .green-card-heading {{
-        color: #16300B !important;
-        font-weight: 700 !important;
-        font-size: 24px !important;
-        margin-bottom: 12px;
-    }}
-
-    .custom-subtext {{
-        color: #FFFFFF !important;
-        font-size: 18px !important;
-        text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
-        margin-bottom: 30px;
+        font-size: 26px !important;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+        text-align: center !important;
+        margin-bottom: 8px !important;
+        line-height: 1.3 !important;
     }}
     
-    .card-body-text {{
-        color: #444444 !important;
+    .card-subtext {{
+        color: #555555 !important;
         font-size: 15px !important;
-        line-height: 1.5;
-        margin-bottom: 25px;
-        min-height: 45px;
+        text-align: center !important;
+        margin-bottom: 20px !important;
+        font-family: 'Segoe UI', Arial, sans-serif !important;
     }}
 
-    /* VIBRANT ELECTRIC GREEN BUTTONS (Sharp Black Text) */
-    div.stButton > button {{
-        background-color: #00E676 !important; 
-        color: #000000 !important;          
+    /* HIGH LEGIBILITY INPUT LABELS */
+    label[data-testid="stWidgetLabel"] p {{
+        color: #16300B !important;
+        font-weight: 700 !important;
+        font-size: 15px !important;
+    }}
+
+    /* CRITICAL FIX: Explicitly target both general buttons AND form submit buttons 
+       to force the bright electric green layout override.
+    */
+    div.stButton > button, div.stFormSubmitButton > button {{
+        background-color: #00E676 !important; /* Vivid Electric Green */
+        color: #000000 !important;          /* Sharp Black Text */
         border-radius: 12px !important;       
         border: none !important;
-        padding: 14px 28px !important;
-        font-size: 18px !important;
+        padding: 12px 20px !important;
+        font-size: 16px !important;
         font-weight: 700 !important;
         letter-spacing: 0.5px;
         box-shadow: 0 4px 12px rgba(0, 230, 118, 0.3) !important;
         transition: all 0.2s ease-in-out;
-        width: 100%;
     }}
     
-    div.stButton > button:hover {{
+    div.stButton > button:hover, div.stFormSubmitButton > button:hover {{
         background-color: #00C853 !important; 
         box-shadow: 0 6px 16px rgba(0, 230, 118, 0.5) !important;
-        transform: scale(1.03);
+        transform: scale(1.02);
     }}
     </style>
     """, unsafe_allow_html=True)
 
-# --- Top Header / Branding ---
+# --- Render Elements ---
+
+# 1. Brand Logo on Top LEFT
 st.markdown(f"""
     <div class="brand-title">
         MFUGAJI KWANZA
@@ -171,42 +203,75 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-# Spacing down to clear absolute top header positioning
-st.write("<br><br><br><br>", unsafe_allow_html=True)
+# 2. Central Layout Core Router
+_, center_col, _ = st.columns([1, 1.3, 1])
 
-# --- Quick Language Changer Row ---
-lang_col1, lang_col2 = st.columns([5, 1])
-with lang_col2:
-    chosen_lang = st.selectbox("", ["English", "Swahili"], index=0 if lang == "English" else 1, key="trans_lang_toggle")
-    if chosen_lang != st.session_state.language:
-        st.session_state.language = chosen_lang
-        st.rerun()
+with center_col:
+    
+    # CASE A: LANDING SCREEN
+    if st.session_state.auth_mode == "landing":
+        with st.form(key="landing_form"):
+            st.markdown(f'<div class="green-heading">{t["heading_landing"]}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-subtext">{t["subtext_landing"]}</div>', unsafe_allow_html=True)
+            
+            chosen_lang = st.selectbox("Language / Lugha", ["English", "Swahili"], index=0 if lang == "English" else 1)
+            if chosen_lang != st.session_state.language:
+                st.session_state.language = chosen_lang
+                st.rerun()
+                
+            st.write("") 
 
-# --- Main Welcome Banner ---
-st.markdown(f'<div style="text-align: center;"><span class="green-main-heading" style="color:#FFF !important; text-shadow: 2px 2px 4px #000;">{t["welcome"]}</span></div>', unsafe_allow_html=True)
-st.markdown(f'<div class="custom-subtext" style="text-align: center;">{t["instruction"]}</div>', unsafe_allow_html=True)
+            btn_col1, btn_col2 = st.columns(2)
+            with btn_col1:
+                if st.form_submit_button(t["login_btn"], use_container_width=True):
+                    st.session_state.auth_mode = "login"
+                    st.rerun()
+            with btn_col2:
+                if st.form_submit_button(t["signup_btn"], use_container_width=True):
+                    st.session_state.auth_mode = "signup"
+                    st.rerun()
 
-# --- Dual Option Dashboard Selection Columns ---
-_, center_grid_left, _, center_grid_right, _ = st.columns([0.5, 2, 0.3, 2, 0.5])
+    # CASE B: LOGIN INPUT SCREEN
+    elif st.session_state.auth_mode == "login":
+        with st.form(key="login_form"):
+            st.markdown(f'<div class="green-heading">{t["heading_login"]}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-subtext">{t["subtext_login"]}</div>', unsafe_allow_html=True)
+            
+            username = st.text_input(t["phone_label"])
+            password = st.text_input(t["pass_label"], type="password")
+            
+            btn_col1, btn_col2 = st.columns(2)
+            with btn_col1:
+                if st.form_submit_button(t["proceed_btn"], use_container_width=True):
+                    if username and password:
+                        st.session_state.run_redirect = True
+                        st.rerun()
+                    else:
+                        st.error(t["error_fields"])
+            with btn_col2:
+                if st.form_submit_button(t["back_btn"], use_container_width=True):
+                    st.session_state.auth_mode = "landing"
+                    st.rerun()
 
-with center_grid_left:
-    st.markdown(f"""
-        <div class="transaction-card">
-            <div class="green-card-heading">{t['choice_inputs']}</div>
-            <div class="card-body-text">{t['desc_inputs']}</div>
-        </div>
-    """, unsafe_allow_html=True)
-    if st.button(t['choice_inputs'], key="btn_inputs"):
-        st.info(f"{t['selected_msg']} {t['choice_inputs']}")
-        # Next Step: Add logic/switch pages to open your farm input catalog form here!
-
-with center_grid_right:
-    st.markdown(f"""
-        <div class="transaction-card">
-            <div class="green-card-heading">{t['choice_withdraw']}</div>
-            <div class="card-body-text">{t['desc_withdraw']}</div>
-        </div>
-    """, unsafe_allow_html=True)
-    if st.button(t['choice_withdraw'], key="btn_withdraw"):
-        st.info(f"{t['selected_msg']} {t['choice_withdraw']}")
-        # Next Step: Add logic/switch pages to open your mobile payment payout gateway form here!
+    # CASE C: SIGN UP INPUT SCREEN
+    elif st.session_state.auth_mode == "signup":
+        with st.form(key="signup_capture_form"):
+            st.markdown(f'<div class="green-heading">{t["heading_signup"]}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-subtext">{t["subtext_signup"]}</div>', unsafe_allow_html=True)
+            
+            new_name = st.text_input(t["name_label"])
+            new_phone = st.text_input(t["phone_signup_label"])
+            new_pass = st.text_input(t["pass_signup_label"], type="password")
+            
+            btn_col1, btn_col2 = st.columns(2)
+            with btn_col1:
+                if st.form_submit_button(t["complete_btn"], use_container_width=True):
+                    if new_name and new_phone and new_pass:
+                        st.session_state.run_redirect = True
+                        st.rerun()
+                    else:
+                        st.error(t["error_fields"])
+            with btn_col2:
+                if st.form_submit_button(t["back_btn"], use_container_width=True):
+                    st.session_state.auth_mode = "landing"
+                    st.rerun()
