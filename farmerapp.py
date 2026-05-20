@@ -61,7 +61,7 @@ translations = {
         "subtitle": "Modern Poultry Management System",
         "login_header": "🔒 Account Login",
         "signup_header": "📝 Create New Account",
-        "username": "Username or Phone Number",
+        "username": "Username ",
         "password": "Password",
         "full_name": "Full Name",
         "login_btn": "Sign In Securely 🚀",
@@ -126,7 +126,7 @@ translations = {
         "subtitle": "Mfumo wa Kisasa wa Usimamizi wa Kuku",
         "login_header": "🔒 Ingia Kwenye Akaunti",
         "signup_header": "📝 Fungua Akaunti Mpya",
-        "username": "Jina la Mtumiaji / Namba ya Simu",
+        "username": "Jina la Mtumiaji",
         "password": "Neno la Siri (Password)",
         "full_name": "Jina Lako Kamili",
         "login_btn": "Ingia Sasa 🚀",
@@ -359,11 +359,11 @@ elif st.session_state.logged_in and not st.session_state.is_activated:
             
             carrier = st.selectbox(t["gate_carrier"], ["M-Pesa", "Tigo Pesa", "Airtel Money", "Halo Pesa"])
             push_phone = st.text_input(t["gate_phone"], placeholder="07xxxxxxxx")
-            push_amount = st.number_input(t["gate_amount"], min_value=10000, value=10000, step=1000)
+            push_amount = st.number_input(t["gate_amount"], min_value=20000, value=20000, step=1000)
             
             if st.form_submit_button(t["gate_pay_btn"]):
                 phone_clean = push_phone.strip()
-                if len(phone_clean) >= 10 and push_amount >= 10000:
+                if len(phone_clean) >= 10 and push_amount >= 20000:
                     with st.spinner("Inasafiri kwenda kwenye mtandao... Subiri kidogo na uweke PIN yako ya siri pindi ikitokea."):
                         
                         # --- WEKA SECRET KEY YAKO HAPA CHINI ---
