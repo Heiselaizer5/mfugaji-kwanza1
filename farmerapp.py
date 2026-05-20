@@ -23,8 +23,17 @@ if "language" not in st.session_state:
 if "sub_view" not in st.session_state:
     st.session_state.sub_view = "dashboard"
 
+if "auth_screen" not in st.session_state:
+    st.session_state.auth_screen = "login"  # Inaweza kuwa 'login' au 'signup'
+
 if "profit_calculated" not in st.session_state:
     st.session_state.profit_calculated = False
+
+# Database ya watumiaji waliojisajili (Tunajaza admin kama default)
+if "users_db" not in st.session_state:
+    st.session_state.users_db = {
+        "admin": "admin123"
+    }
 
 # Database kuu ya kuhifadhi data za kila tarehe tofauti
 if "farm_database" not in st.session_state:
@@ -49,17 +58,24 @@ def init_date_entry(target_date_str):
 # --- Background Image ---
 broiler_bg_url = "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?q=80&w=1600&auto=format&fit=crop"
 
-# --- Kamusi ya Lugha zote (Login + Gateway + Dashboard + Forms) ---
+# --- Kamusi ya Lugha zote (Login + Signup + Gateway + Dashboard) ---
 translations = {
     "English": {
         "title": "MFUGAJI KWANZA",
         "subtitle": "Modern Poultry Management System",
         "login_header": "🔒 Account Login",
+        "signup_header": "📝 Create New Account",
         "username": "Username or Phone Number",
         "password": "Password",
+        "full_name": "Full Name",
         "login_btn": "Sign In Securely 🚀",
+        "signup_btn": "Register & Proceed to Payment 📝",
+        "go_to_signup": "Don't have an account? Sign Up here",
+        "go_to_login": "Already have an account? Log In here",
         "error_msg": "❌ Invalid Username or Password.",
-        "success_msg": "🎉 Login Successful! Opening Activation Gateway...",
+        "error_fields": "❌ All fields are required.",
+        "success_msg": "🎉 Account Created! Please process activation payment...",
+        "login_success": "🎉 Login Successful!",
         
         # Gateway Key
         "gate_header": "💳 Premium Account Activation",
@@ -113,15 +129,22 @@ translations = {
         "title": "MFUGAJI KWANZA",
         "subtitle": "Mfumo wa Kisasa wa Usimamizi wa Kuku",
         "login_header": "🔒 Ingia Kwenye Akaunti",
+        "signup_header": "📝 Fungua Akaunti Mpya",
         "username": "Jina la Mtumiaji / Namba ya Simu",
         "password": "Neno la Siri (Password)",
+        "full_name": "Jina Lako Kamili",
         "login_btn": "Ingia Sasa 🚀",
+        "signup_btn": "Sajili na Uendelee kwenye Malipo 📝",
+        "go_to_signup": "Hauna akaunti bado? Jisajili hapa",
+        "go_to_login": "Umeshajisajili? Ingia hapa",
         "error_msg": "❌ Jina au neno la siri sio sahihi.",
-        "success_msg": "🎉 Umefanikiwa kuingia! Inafungua ukurasa wa malipo...",
+        "error_fields": "❌ Sehemu zote zinatakiwa kujazwa.",
+        "success_msg": "🎉 Akaunti imefunguliwa! Tafadhali kamilisha malipo...",
+        "login_success": "🎉 Umefanikiwa kuingia!",
         
         # Gateway Key
         "gate_header": "💳 Uamilishaji wa Akaunti ya Shamba",
-        "gate_sub": "Weka kiasi na namba ya simu ili kuamsha akaunti yako moja kwa moja.",
+        "gate_sub": "Weka kiasi na namba ya simu ila kuamsha akaunti yako moja kwa moja.",
         "gate_info": "🐔 Ada ya kiwango cha chini ya uamilishaji ni **Tsh 10,000**.",
         "gate_carrier": "Chagua Mtandao wa Malipo",
         "gate_phone": "Ingiza Namba ya Simu ya Malipo (Mf. 07xxxxxxxx)",
@@ -194,7 +217,6 @@ st.markdown(f"""
     }}
     .brand-subtitle {{ font-size: 14px; font-family: Arial, sans-serif; color: #00E676; display: block; margin-top: -5px; font-weight: 600; }}
 
-    /* Bodi zote ni NYEUSI Thabiti kufuta uchezaji wa screen */
     .dashboard-card, [data-testid="stForm"], .stForm {{
         background-color: #1A1A1A !important; 
         border: 2px solid #2D2D2D !important;
@@ -215,14 +237,12 @@ st.markdown(f"""
     .white-card-heading {{ color: #FFFFFF !important; font-weight: 700; font-size: 22px; margin-bottom: 10px; }}
     .card-body-text-white {{ color: #DDDDDD !important; font-size: 14px; margin-bottom: 20px; line-height: 1.5; }}
 
-    /* Labels ziwe nyeupe kwenye bodi giza */
     label[data-testid="stWidgetLabel"] p {{ 
         color: #FFFFFF !important; 
         font-weight: 700 !important; 
         font-size: 15px !important; 
     }}
 
-    /* Sehemu za kuandikia (Inputs) kuwa nyeupe tupu na maandishi meusi */
     div[data-testid="stMarkdownContainer"] p {{ color: #FFFFFF; }}
     input {{
         background-color: #FFFFFF !important;
@@ -231,12 +251,11 @@ st.markdown(f"""
         border-radius: 8px !important;
     }}
     
-    /* Dropdown customization for visibility */
     div[data-baseweb="select"] {{
         background-color: #1A1A1A !important;
     }}
 
-    /* Electric Green Buttons (Glow effect matching your sample) */
+    /* Electric Green Buttons */
     div.stButton > button {{
         background-color: #00E676 !important; color: #000000 !important;          
         border-radius: 12px !important; border: none !important;
@@ -245,6 +264,15 @@ st.markdown(f"""
     }}
     div.stButton > button:hover {{
         background-color: #00FF5E !important; box-shadow: 0 0 25px rgba(0, 230, 118, 0.8) !important; transform: scale(1.02);
+    }}
+    
+    .link-button-custom {{
+        color: #00E676 !important;
+        text-align: center;
+        display: block;
+        margin-top: 15px;
+        cursor: pointer;
+        text-decoration: underline;
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -262,29 +290,66 @@ with row_top2:
 st.write("<br>", unsafe_allow_html=True)
 
 # ==========================================
-# SEHEMU YA 1: LOGIN PAGE 
+# SEHEMU YA 1: AUTHENTICATION FLOW (Login / Signup)
 # ==========================================
 if not st.session_state.logged_in:
-    _, center_login, _ = st.columns([1, 1.8, 1])
-    with center_login:
-        with st.form(key="login_secure_form"):
-            st.markdown(f'<h3 style="color:#00E676; margin-top:0; font-weight:800; text-align:center;">{t["login_header"]}</h3>', unsafe_allow_html=True)
-            st.write("<hr style='border-color: #333; margin-bottom:20px;'>", unsafe_allow_html=True)
+    _, center_auth, _ = st.columns([1, 1.8, 1])
+    
+    with center_auth:
+        # ---- CASE 1A: LOGIN FORM ----
+        if st.session_state.auth_screen == "login":
+            with st.form(key="login_secure_form"):
+                st.markdown(f'<h3 style="color:#00E676; margin-top:0; font-weight:800; text-align:center;">{t["login_header"]}</h3>', unsafe_allow_html=True)
+                st.write("<hr style='border-color: #333; margin-bottom:20px;'>", unsafe_allow_html=True)
+                
+                user_input = st.text_input(t["username"], placeholder="admin / 0712345678")
+                pass_input = st.text_input(t["password"], type="password", placeholder="••••••••")
+                
+                if st.form_submit_button(t["login_btn"]):
+                    username_clean = user_input.strip()
+                    if username_clean in st.session_state.users_db and st.session_state.users_db[username_clean] == pass_input:
+                        st.session_state.logged_in = True
+                        st.success(t["login_success"])
+                        time.sleep(1.0)
+                        st.rerun()
+                    else:
+                        st.error(t["error_msg"])
             
-            user_input = st.text_input(t["username"], placeholder="admin / 0712345678")
-            pass_input = st.text_input(t["password"], type="password", placeholder="••••••••")
+            # Kitufe cha kubadili kwenda Signup Screen
+            if st.button(t["go_to_signup"]):
+                st.session_state.auth_screen = "signup"
+                st.rerun()
+
+        # ---- CASE 1B: SIGNUP FORM ----
+        elif st.session_state.auth_screen == "signup":
+            with st.form(key="signup_secure_form"):
+                st.markdown(f'<h3 style="color:#00E676; margin-top:0; font-weight:800; text-align:center;">{t["signup_header"]}</h3>', unsafe_allow_html=True)
+                st.write("<hr style='border-color: #333; margin-bottom:20px;'>", unsafe_allow_html=True)
+                
+                reg_name = st.text_input(t["full_name"], placeholder="Mussa Hamisi")
+                reg_user = st.text_input(t["username"], placeholder="07xxxxxxxx")
+                reg_pass = st.text_input(t["password"], type="password", placeholder="Weka password yako")
+                
+                if st.form_submit_button(t["signup_btn"]):
+                    username_clean = reg_user.strip()
+                    if reg_name and username_clean and reg_pass:
+                        # Hifadhi mtumiaji kwenye database yetu ya Session State
+                        st.session_state.users_db[username_clean] = reg_pass
+                        st.session_state.logged_in = True
+                        st.session_state.is_activated = False  # Anahitaji kulipia kwanza
+                        st.success(t["success_msg"])
+                        time.sleep(1.5)
+                        st.rerun()
+                    else:
+                        st.error(t["error_fields"])
             
-            if st.form_submit_button(t["login_btn"]):
-                if user_input.strip() == "admin" and pass_input == "admin123":
-                    st.session_state.logged_in = True
-                    st.success(t["success_msg"])
-                    time.sleep(1.0)
-                    st.rerun()
-                else:
-                    st.error(t["error_msg"])
+            # Kitufe cha kurudi Login Screen
+            if st.button(t["go_to_login"]):
+                st.session_state.auth_screen = "login"
+                st.rerun()
 
 # ==========================================
-# SEHEMU YA 2: GATEWAY PUSH GATEBOARD (Kama hajalipia)
+# SEHEMU YA 2: GATEWAY PUSH GATEBOARD (Uamilishaji baada ya Signup)
 # ==========================================
 elif st.session_state.logged_in and not st.session_state.is_activated:
     _, center_gate, _ = st.columns([1, 1.8, 1])
@@ -303,7 +368,7 @@ elif st.session_state.logged_in and not st.session_state.is_activated:
             if st.form_submit_button(t["gate_pay_btn"]):
                 if len(push_phone.strip()) >= 10 and push_amount >= 10000:
                     with st.spinner("Connecting to carrier network... Weka namba ya siri kwenye simu yako kukamilisha."):
-                        time.sleep(3.5)  # Simulated API callback time
+                        time.sleep(3.5)  # Simulated API Callback Wait
                     st.session_state.is_activated = True
                     st.success(t["gate_success"])
                     time.sleep(1.5)
@@ -312,7 +377,7 @@ elif st.session_state.logged_in and not st.session_state.is_activated:
                     st.error(t["gate_error"])
 
 # ==========================================
-# SEHEMU YA 3: DASHBOARD & TRANSACTIONS (Akisha-lipia na ku-login)
+# SEHEMU YA 3: DASHBOARD & TRANSACTIONS (Usimamizi wa Shamba)
 # ==========================================
 else:
     # Kukokotoa jumla ya shamba zima kutoka kwenye database ya tarehe zote
@@ -423,6 +488,14 @@ else:
                 """, unsafe_allow_html=True)
             else:
                 st.info(t["no_records"])
+                
+        # Logout Custom Option
+        st.write("<br>", unsafe_allow_html=True)
+        if st.button("Logout (Ondoka)", key="app_logout_btn"):
+            st.session_state.logged_in = False
+            st.session_state.is_activated = False
+            st.session_state.auth_screen = "login"
+            st.rerun()
 
     # ---- VIEW 2B: FOMU YA GHARAMA ----
     elif st.session_state.sub_view == "inputs":
