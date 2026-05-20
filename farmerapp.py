@@ -206,7 +206,7 @@ if not st.session_state.logged_in:
                 st.rerun()
 
 # ==========================================
-# SEHEMU YA 2: BANGO LA MALIPO YA KILA MWEZI
+# SEHEMU YA 2: BANGO LA MALIPO YA KILA MWEZI (FIXED)
 # ==========================================
 elif st.session_state.logged_in and not st.session_state.is_activated:
     _, center_gate, _ = st.columns([1, 2.2, 1])
@@ -222,7 +222,7 @@ elif st.session_state.logged_in and not st.session_state.is_activated:
             </p>
             <hr style="border-color: #1f3a60;">
             
-            <a class="activation-link" href=" https://selar.com/9o12h598n9" target="_blank">
+            <a class="activation-link" href="https://selar.co/9o12h598n9" target="_blank">
                 🐔 BONYEZA HAPA KULIPIA / 1-MONTH PASS (10,000 TZS)
             </a>
             
