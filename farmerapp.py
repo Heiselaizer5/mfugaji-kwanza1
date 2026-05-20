@@ -53,7 +53,7 @@ translations = {
     "English": {
         "title": "MFUGAJI KWANZA", "subtitle": "Modern Poultry Management System",
         "login_header": "🔒 Account Login", "signup_header": "📝 Create New Account",
-        "username": "Username", "password": "Password", "full_name": "Full Name",
+        "username": "Username or Phone Number", "password": "Password", "full_name": "Full Name",
         "login_btn": "Sign In Securely 🚀", "signup_btn": "Register & Proceed to Payment 📝",
         "go_to_signup": "Don't have an account? Sign Up here", "go_to_login": "Already have an account? Log In here",
         "error_msg": "❌ Invalid Username or Password.", "error_fields": "❌ All fields are required.",
@@ -76,7 +76,7 @@ translations = {
     "Swahili": {
         "title": "MFUGAJI KWANZA", "subtitle": "Mfumo wa Kisasa wa Usimamizi wa Kuku",
         "login_header": "🔒 Ingia Kwenye Akaunti", "signup_header": "📝 Fungua Akaunti Mpya",
-        "username": "Jina la Mtumiaji", "password": "Neno la Siri (Password)", "full_name": "Jina Lako Kamili",
+        "username": "Jina la Mtumiaji / Namba ya Simu", "password": "Neno la Siri (Password)", "full_name": "Jina Lako Kamili",
         "login_btn": "Ingia Sasa 🚀", "signup_btn": "Sajili na Uendelee kwenye Malipo 📝",
         "go_to_signup": "Hauna akaunti bado? Jisajili hapa", "go_to_login": "Umeshajisajili? Ingia hapa",
         "error_msg": "❌ Jina au neno la siri sio sahihi.", "error_fields": "❌ Sehemu zote zinatakiwa kujazwa.",
@@ -206,7 +206,7 @@ if not st.session_state.logged_in:
                 st.rerun()
 
 # ==========================================
-# SEHEMU YA 2: BANGO LA MALIPO YA KILA MWEZI (FIXED)
+# SEHEMU YA 2: BANGO LA MALIPO YA KILA MWEZI (SASA LIMEREKEBISHWA!)
 # ==========================================
 elif st.session_state.logged_in and not st.session_state.is_activated:
     _, center_gate, _ = st.columns([1, 2.2, 1])
@@ -227,7 +227,7 @@ elif st.session_state.logged_in and not st.session_state.is_activated:
             </a>
             
         </div>
-        """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True) # <--- HAPA NIMEWEKA unsafe_allow_html=True ILI HTML IFANYE KAZI!
         
         st.write("<br>", unsafe_allow_html=True)
         st.info("💡 Mfumo utakufungulia dashibodi yenyewe mara tu ukimaliza kulipa kule Selar. Kama ukichelewa au ukirudi kwa mkono, bonyeza kitufe cha chini.")
