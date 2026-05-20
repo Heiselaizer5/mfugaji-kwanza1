@@ -41,9 +41,15 @@ if "status" in query_params and "token" in query_params:
 def init_date_entry(target_date_str):
     if target_date_str not in st.session_state.farm_database:
         st.session_state.farm_database[target_date_str] = {
-            "chicks_cost": 0.0, "feed_cost": 0.0, "med_cost": 0.0, "other_cost": 0.0,
-            "mortality": 0, "sales_qty": 0, "sales_price": 0.0, "sales_revenue": 0.0,
-            "has_inputs": False, "has_sales": False
+            "chicks_qty": 0,       # Idadi ya vifaranga/kuku walioingizwa bandani
+            "chicks_cost": 0.0, 
+            "feed_cost": 0.0, 
+            "med_cost": 0.0, 
+            "other_cost": 0.0,
+            "mortality": 0, 
+            "sales_records": [],   # Orodha ya mauzo ya wateja: [{"customer": "Name", "qty": X, "price": Y, "revenue": Z}]
+            "has_inputs": False, 
+            "has_sales": False
         }
 
 broiler_bg_url = "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?q=80&w=1600&auto=format&fit=crop"
@@ -59,15 +65,17 @@ translations = {
         "error_msg": "❌ Invalid Username or Password.", "error_fields": "❌ All fields are required.",
         "success_msg": "🎉 Account Created! Please process activation payment...", "login_success": "🎉 Login Successful!",
         "welcome": "Broiler Batch Manager", "instruction": "Select an option below to manage development or sales.",
-        "choice_inputs": "🛒 Development & Expenditure", "choice_withdraw": "💰 Broiler Sales",
-        "desc_inputs": "Record expenses for chicks, feeds, medications, etc.", "desc_withdraw": "Record chickens sold and revenue.",
+        "choice_inputs": "🛒 Development & Expenditure", "choice_withdraw": "💰 Broiler Sales (Customers)",
+        "desc_inputs": "Record expenses for chicks, feeds, medications, and batch entry.", "desc_withdraw": "Record customer names, chickens bought, and sales revenue.",
         "back_btn": "← Back to Dashboard", "input_header": "🐣 Development & Expenditure",
-        "sales_header": "💰 Broiler Sales", "label_chicks": "Total Cost of Vifaranga (TSH)",
+        "sales_header": "💰 Broiler Sales", 
+        "label_chicks_qty": "Number of Chicks Introduced / Idadi ya Vifaranga",
+        "label_chicks": "Total Cost of Vifaranga (TSH)",
         "label_feed": "Total Cost of Feeds (TSH)", "label_med": "Total Cost of Meds (TSH)",
         "label_other": "Total Cost of Other Expenses (TSH)", "label_mortality": "Mortality Count",
-        "label_date": "Select Date to Record data:", "finish_inputs_btn": "🏁 Save Expenses for this Date",
-        "finish_sales_btn": "🏁 Save Sales for this Date", "label_qty": "Number of Chickens Sold",
-        "label_price": "Price per Chicken (TSH)", "summary_header": "📊 Total Lifetime Financial Summary",
+        "label_date": "Select Date:", "finish_inputs_btn": "🏁 Save Expenses & Batch Details",
+        "finish_sales_btn": "🏁 Save & Record Customer Purchase", "label_qty": "Number of Chickens Bought by Customer",
+        "label_customer": "Customer Name / Jina la Mteja", "label_price": "Price per Chicken (TSH)", "summary_header": "📊 Total Lifetime Financial Summary",
         "total_expenses": "Total Lifetime Expenses:", "total_revenue": "Total Lifetime Revenue:",
         "calc_profit_btn": "📈 Calculate Net Profit", "profit_msg": "🎉 Net Profit:", "loss_msg": "⚠️ Net Loss:",
         "search_header": "🔍 View Farm Records by Date", "search_instruction": "Pick a date to fetch records.",
@@ -82,15 +90,17 @@ translations = {
         "error_msg": "❌ Jina au neno la siri sio sahihi.", "error_fields": "❌ Sehemu zote zinatakiwa kujazwa.",
         "success_msg": "🎉 Akaunti imefunguliwa! Tafadhali kamilisha malipo...", "login_success": "🎉 Umefanikiwa kuingia!",
         "welcome": "Usimamizi wa Kuku wa Nyama (Broiler)", "instruction": "Chagua hatua hapa chini kusajili gharama au mauzo.",
-        "choice_inputs": "🛒 Maendeleo na Gharama za Vifaranga", "choice_withdraw": "💰 Mauzo ya Kuku (Broiler Sales)",
-        "desc_inputs": "Sajili gharama za vifaranga, chakula, madawa na vifo.", "desc_withdraw": "Sajili idadi ya kuku waliouzwa na bei yake.",
+        "choice_inputs": "🛒 Maendeleo na Gharama za Vifaranga", "choice_withdraw": "💰 Mauzo ya Kuku (Wateja)",
+        "desc_inputs": "Sajili gharama, idadi ya vifaranga walioingia, chakula na vifo.", "desc_withdraw": "Sajili majina ya wateja, idadi ya kuku walionunua na pesa waliyolipa.",
         "back_btn": "← Rudi Kwenye Dashibodi", "input_header": "🐣 Maendeleo na Gharama za Vifaranga",
-        "sales_header": "💰 Mauzo ya Kuku (Broiler Sales)", "label_chicks": "Gharama ya Vifaranga (TSH)",
+        "sales_header": "💰 Mauzo ya Kuku (Broiler Sales)", 
+        "label_chicks_qty": "Idadi ya Vifaranga Walioingia Siku Hii",
+        "label_chicks": "Gharama ya Kununua Vifaranga (TSH)",
         "label_feed": "Gharama ya Chakula (TSH)", "label_med": "Gharama ya Chanjo na Dawa (TSH)",
-        "label_other": "Gharama Nyinginezo (TSH)", "label_mortality": "Idadi ya Waliokufa",
-        "label_date": "Chagua Tarehe unayotaka kusajili data:", "finish_inputs_btn": "🏁 Hifadhi Matumizi ya Tarehe Hii",
-        "finish_sales_btn": "🏁 Hifadhi Mauzo ya Tarehe Hii", "label_qty": "Idadi ya Kuku Waliouzwa",
-        "label_price": "Bei kwa Kila Kuku (TSH)", "summary_header": "📊 Muhtasari wa Jumla wa Mapato na Faida",
+        "label_other": "Gharama Nyinginezo (TSH)", "label_mortality": "Idadi ya Waliokufa (Vifo vya Leo)",
+        "label_date": "Chagua Tarehe:", "finish_inputs_btn": "🏁 Hifadhi Matumizi na Data za Vifaranga",
+        "finish_sales_btn": "🏁 Hifadhi Mauzo ya Mteja Huyu", "label_qty": "Idadi ya Kuku Alionunua Mteja",
+        "label_customer": "Jina la Mteja", "label_price": "Bei kwa Kila Kuku (TSH)", "summary_header": "📊 Muhtasari wa Jumla wa Mapato na Faida",
         "total_expenses": "Jumla ya Matumizi:", "total_revenue": "Jumla ya Mapato:",
         "calc_profit_btn": "📈 Piga Hesabu ya Net Profit", "profit_msg": "🎉 Shamba limeingiza FAIDA ya", "loss_msg": "⚠️ Shamba limeingiza HASARA ya",
         "search_header": "🔍 Angalia Kumbukumbu kwa Tarehe", "search_instruction": "Chagua tarehe kupata data.",
@@ -155,6 +165,13 @@ st.markdown(f"""
         border-left: 5px solid #38bdf8;
         margin-top: 10px;
     }}
+    .customer-badge {{
+        background-color: #2d2d2d;
+        padding: 6px 12px;
+        border-radius: 6px;
+        margin: 4px 0;
+        border-left: 3px solid #00E676;
+    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -218,7 +235,7 @@ if not st.session_state.logged_in:
                 st.rerun()
 
 # ==========================================
-# SEHEMU YA 2: BANGO LA MALIPO (IMELINDWA)
+# SEHEMU YA 2: BANGO LA MALIPO
 # ==========================================
 elif st.session_state.logged_in and not st.session_state.is_activated:
     _, center_gate, _ = st.columns([1, 2.2, 1])
@@ -230,12 +247,11 @@ elif st.session_state.logged_in and not st.session_state.is_activated:
                 Lipia uamilishaji wa mwezi mmoja ili kupata huduma zote za usimamizi wa kuku wako.
             </p>
             <p style="color: #00E676; font-size: 14px; font-weight: 600; margin-bottom: 20px;">
-                Easy payment via Tigo Pesa, M-Pesa, or Airtel Money.
+                Easy payment via Tigo Pesa, Halopesa, or Airtel Money.
             </p>
         </div>
         """, unsafe_allow_html=True)
         
-        # Link halisi ya Selar
         st.link_button(
             label="🐔 BONYEZA HAPA KULIPIA / 1-MONTH PASS (10,000 TZS)", 
             url="https://selar.co/9o12h598n9"
@@ -247,16 +263,17 @@ elif st.session_state.logged_in and not st.session_state.is_activated:
 # SEHEMU YA 3: DASHBOARD & TRANSACTIONS
 # ==========================================
 else:
-    # Safisha query params za malipo ili kuzuia upenyo
     if st.query_params:
         st.query_params.clear()
         
+    # Hesabu Jumla ya Maisha ya Shamba (Lifetime Summary)
     lifetime_costs = 0.0
     lifetime_revenue = 0.0
     for date_key in st.session_state.farm_database:
         entry = st.session_state.farm_database[date_key]
         lifetime_costs += entry["chicks_cost"] + entry["feed_cost"] + entry["med_cost"] + entry["other_cost"]
-        lifetime_revenue += entry["sales_revenue"]
+        for record in entry["sales_records"]:
+            lifetime_revenue += record["revenue"]
 
     if st.session_state.sub_view == "dashboard":
         st.markdown(f'<h2 style="text-align:center; color:white; margin-top:0;">{t["welcome"]}</h2>', unsafe_allow_html=True)
@@ -275,7 +292,7 @@ else:
                 st.session_state.profit_calculated = False 
                 st.rerun()
 
-        # Summary
+        # Summary Display
         st.write("<br>", unsafe_allow_html=True)
         _, center_calc_col, _ = st.columns([0.5, 3, 0.5])
         with center_calc_col:
@@ -294,7 +311,7 @@ else:
                 if net_profit > 0: st.success(f"{t['profit_msg']} {net_profit:,.2f} TSH")
                 else: st.error(f"{t['loss_msg']} {abs(net_profit):,.2f} TSH")
 
-        # Sehemu ya Kutafuta Data kwa Tarehe (Search Engine Fixed)
+        # Sehemu ya Kutafuta Data kwa Tarehe (Search Engine iliyoboreshwa)
         st.write("<br><hr style='border-color: #333;'><br>", unsafe_allow_html=True)
         _, search_col, _ = st.columns([0.5, 3, 0.5])
         with search_col:
@@ -304,18 +321,37 @@ else:
             
             if search_date_str in st.session_state.farm_database:
                 data_found = st.session_state.farm_database[search_date_str]
+                day_total_qty = sum(r["qty"] for r in data_found["sales_records"])
+                day_total_rev = sum(r["revenue"] for r in data_found["sales_records"])
+                chicks_entered = data_found.get("chicks_qty", 0)
+                
                 st.markdown(f"""
                 <div class="data-display">
                     <h4 style="color:#00E676; margin-top:0;">📅 {t['day_summary']} {search_date_str}</h4>
-                    <p style="color:white; margin:4px 0;">• Vifaranga: <b>{data_found['chicks_cost']:,.1f} TSH</b></p>
-                    <p style="color:white; margin:4px 0;">• Chakula: <b>{data_found['feed_cost']:,.1f} TSH</b></p>
-                    <p style="color:white; margin:4px 0;">• Dawa: <b>{data_found['med_cost']:,.1f} TSH</b></p>
+                    <p style="color:#38bdf8; margin:4px 0;">• Vifaranga Walioingia: <b>{chicks_entered} Kuku</b></p>
+                    <p style="color:white; margin:4px 0;">• Gharama ya Vifaranga: <b>{data_found['chicks_cost']:,.1f} TSH</b></p>
+                    <p style="color:white; margin:4px 0;">• Gharama ya Chakula: <b>{data_found['feed_cost']:,.1f} TSH</b></p>
+                    <p style="color:white; margin:4px 0;">• Gharama ya Dawa: <b>{data_found['med_cost']:,.1f} TSH</b></p>
                     <p style="color:white; margin:4px 0;">• Nyinginezo: <b>{data_found['other_cost']:,.1f} TSH</b></p>
                     <p style="color:#FF5252; margin:4px 0;">• Idadi ya Vifo: <b>{data_found['mortality']} Kuku</b></p>
                     <hr style="border-color:#444; margin:10px 0;">
-                    <p style="color:white; margin:4px 0;">• Kuku Waliouzwa: <b>{data_found['sales_qty']}</b></p>
-                    <p style="color:white; margin:4px 0;">• Bei kwa Kuku: <b>{data_found['sales_price']:,.1f} TSH</b></p>
-                    <p style="color:#00E676; margin:4px 0;">• Mapato ya Siku: <b>{data_found['sales_revenue']:,.1f} TSH</b></p>
+                    <h5 style="color:#38bdf8; margin:5px 0;">👥 Orodha ya Wateja wa Leo:</h5>
+                """, unsafe_allow_html=True)
+                
+                if data_found["sales_records"]:
+                    for r in data_found["sales_records"]:
+                        st.markdown(f"""
+                        <div class="customer-badge">
+                            👤 Mteja: <b>{r['customer']}</b> | Alichukua: <b style="color:#00E676;">{r['qty']} Kuku</b> @ {r['price']:,.0f} TSH (Jumla: {r['revenue']:,.0f} TSH)
+                        </div>
+                        """, unsafe_allow_html=True)
+                else:
+                    st.write("<span style='color:#AAA;'>Hakuna mteja aliyesajiliwa tarehe hii bado.</span>", unsafe_allow_html=True)
+                    
+                st.markdown(f"""
+                    <hr style="border-color:#444; margin:10px 0;">
+                    <p style="color:white; margin:4px 0;">• Jumla ya Kuku Waliouzwa Leo: <b>{day_total_qty} Kuku</b></p>
+                    <p style="color:#00E676; font-size:16px; margin:4px 0;">• Jumla ya Mapato ya Leo: <b>{day_total_rev:,.1f} TSH</b></p>
                 </div>
                 """, unsafe_allow_html=True)
             else:
@@ -333,14 +369,18 @@ else:
         with center_form:
             if st.button(t["back_btn"]): st.session_state.sub_view = "dashboard"; st.rerun()
             
-            # TAREHE IPO NJE YA FOMU ILI STREAMLIT ISOME PAPO HAPO UNAPOBADILISHA!
             chosen_date = st.date_input(t["label_date"], value=date.today())
             date_str = str(chosen_date)
             init_date_entry(date_str)
             current_entry = st.session_state.farm_database[date_str]
             
             with st.form(key="inputs_data_capture"):
-                chicks = st.number_input(t["label_chicks"], value=current_entry["chicks_cost"])
+                st.markdown("<h4 style='color:#38bdf8; margin-top:0;'>🐣 Ingiza Idadi & Gharama za Siku</h4>", unsafe_allow_html=True)
+                
+                # Uwanja wa Idadi ya vifaranga walioingia bandani leo
+                chicks_qty = st.number_input(t["label_chicks_qty"], min_value=0, value=int(current_entry.get("chicks_qty", 0)), step=1)
+                
+                chicks_cost = st.number_input(t["label_chicks"], value=current_entry["chicks_cost"])
                 feeds = st.number_input(t["label_feed"], value=current_entry["feed_cost"])
                 meds = st.number_input(t["label_med"], value=current_entry["med_cost"])
                 other = st.number_input(t["label_other"], value=current_entry["other_cost"])
@@ -348,13 +388,16 @@ else:
                 
                 if st.form_submit_button(t["finish_inputs_btn"]):
                     st.session_state.farm_database[date_str].update({
-                        "chicks_cost": chicks, 
+                        "chicks_qty": int(chicks_qty),
+                        "chicks_cost": chicks_cost, 
                         "feed_cost": feeds, 
                         "med_cost": meds, 
                         "other_cost": other, 
                         "mortality": int(mortality), 
                         "has_inputs": True
                     })
+                    st.success("🎉 Data za gharama na idadi ya kuku zimehifadhiwa!")
+                    time.sleep(1.0)
                     st.session_state.sub_view = "dashboard"
                     st.rerun()
 
@@ -363,22 +406,30 @@ else:
         with center_form:
             if st.button(t["back_btn"]): st.session_state.sub_view = "dashboard"; st.rerun()
             
-            # TAREHE IPO NJE YA FOMU ILI STREAMLIT ISOME PAPO HAPO UNAPOBADILISHA!
             chosen_date = st.date_input(t["label_date"], value=date.today())
             date_str = str(chosen_date)
             init_date_entry(date_str)
-            current_entry = st.session_state.farm_database[date_str]
             
-            with st.form(key="sales_data_capture"):
-                qty = st.number_input(t["label_qty"], value=current_entry["sales_qty"], step=1)
-                price = st.number_input(t["label_price"], value=6500.0 if current_entry["sales_price"] == 0.0 else current_entry["sales_price"])
+            st.markdown("<h3 style='color:#00E676;'>💰 Sajili Mauzo ya Mteja</h3>", unsafe_allow_html=True)
+            
+            with st.form(key="sales_data_capture", clear_on_submit=True):
+                customer_name = st.text_input(t["label_customer"], placeholder="Mfano: Juma, Mama Maria, n.k.")
+                qty = st.number_input(t["label_qty"], min_value=1, value=1, step=1)
+                price = st.number_input(t["label_price"], value=6500.0)
                 
                 if st.form_submit_button(t["finish_sales_btn"]):
-                    st.session_state.farm_database[date_str].update({
-                        "sales_qty": int(qty), 
-                        "sales_price": price, 
-                        "sales_revenue": float(qty * price), 
-                        "has_sales": True
-                    })
-                    st.session_state.sub_view = "dashboard"
-                    st.rerun()
+                    if customer_name.strip() == "":
+                        st.error("❌ Tafadhali ingiza Jina la Mteja!")
+                    else:
+                        revenue = float(qty * price)
+                        st.session_state.farm_database[date_str]["sales_records"].append({
+                            "customer": customer_name.strip(),
+                            "qty": int(qty),
+                            "price": price,
+                            "revenue": revenue
+                        })
+                        st.session_state.farm_database[date_str]["has_sales"] = True
+                        st.success(f"🎉 Mauzo ya {customer_name} yamehifadhiwa kikamilifu!")
+                        time.sleep(1.0)
+                        st.session_state.sub_view = "dashboard"
+                        st.rerun()
