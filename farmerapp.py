@@ -18,8 +18,9 @@ if "auth_mode" not in st.session_state:
 if "run_redirect" not in st.session_state:
     st.session_state.run_redirect = False
 
+# REREBISHI YA ERROR: Hapa imewekwa herufi ndogo ili ifanane na jina la GitHub yako!
 if "target_page" not in st.session_state:
-    st.session_state.target_page = "1_Transactions.py"
+    st.session_state.target_page = "1_transactions.py"
 
 # --- THE PERMANENT ERROR FIX: Switch page safely OUTSIDE of the forms ---
 if st.session_state.run_redirect:
@@ -134,7 +135,7 @@ st.markdown(f"""
         margin-top: -5px;
     }}
 
-    /* SOLID PURE WHITE CARD CONTAINER BOX (Fixed for Streamlit compatibility) */
+    /* SOLID PURE WHITE CARD CONTAINER BOX (Inalazimisha kila kitu kubaki ndani ya boksi) */
     div[data-testid="stForm"] {{
         background-color: #FFFFFF !important;
         border: none !important;
@@ -171,7 +172,7 @@ st.markdown(f"""
         font-size: 15px !important;
     }}
 
-    /* GLOWING ELECTRIC GREEN BUTTONS (Football Predictor Style) */
+    /* GLOWING ELECTRIC GREEN BUTTONS (Kama ile ya Football Predictor) */
     div[data-testid="stForm"] button {{
         background-color: #00E676 !important; 
         color: #000000 !important;          
@@ -203,7 +204,6 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-# Spacing container kuishusha form chini kidogo
 st.write("<br><br><br>", unsafe_allow_html=True)
 
 # 2. Central Layout Core Router
@@ -243,8 +243,8 @@ with center_col:
             username = st.text_input(t["phone_label"])
             password = st.text_input(t["pass_label"], type="password")
             
-            # Kuchagua sehemu ya kuelekea
-            target = st.selectbox("Chagua Sehemu / Section", ["1_Transactions.py", "2_Development.py", "3_Sales.py"])
+            # MAJINA YA SELECTION YAMEBADILISHWA KUWA HERUFI NDOGO ILI YAFANANE NA GITHUB YAKO SAFARI HII
+            target = st.selectbox("Chagua Sehemu / Section", ["1_transactions.py", "2_development.py", "3_sales.py"])
             st.session_state.target_page = target
             
             btn_col1, btn_col2 = st.columns(2)
