@@ -15,18 +15,6 @@ if "language" not in st.session_state:
 if "auth_mode" not in st.session_state:
     st.session_state.auth_mode = "landing"
 
-if "run_redirect" not in st.session_state:
-    st.session_state.run_redirect = False
-
-# REREBISHI YA ERROR: Hapa imewekwa herufi ndogo ili ifanane na jina la GitHub yako!
-if "target_page" not in st.session_state:
-    st.session_state.target_page = "1_transactions.py"
-
-# --- THE PERMANENT ERROR FIX: Switch page safely OUTSIDE of the forms ---
-if st.session_state.run_redirect:
-    st.session_state.run_redirect = False  # Reset flag
-    st.switch_page(f"pages/{st.session_state.target_page}")
-
 # --- High-Quality White Broiler Background Image Link ---
 broiler_bg_url = "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?q=80&w=1600&auto=format&fit=crop"
 
@@ -135,7 +123,7 @@ st.markdown(f"""
         margin-top: -5px;
     }}
 
-    /* SOLID PURE WHITE CARD CONTAINER BOX (Inalazimisha kila kitu kubaki ndani ya boksi) */
+    /* SOLID PURE WHITE CARD CONTAINER BOX */
     div[data-testid="stForm"] {{
         background-color: #FFFFFF !important;
         border: none !important;
@@ -165,14 +153,14 @@ st.markdown(f"""
         font-family: 'Segoe UI', Arial, sans-serif !important;
     }}
 
-    /* HIGH LEGIBILITY INPUT LABELS (Dark Forest Green) */
+    /* HIGH LEGIBILITY INPUT LABELS */
     label[data-testid="stWidgetLabel"] p {{
         color: #16300B !important;
         font-weight: 700 !important;
         font-size: 15px !important;
     }}
 
-    /* GLOWING ELECTRIC GREEN BUTTONS (Kama ile ya Football Predictor) */
+    /* GLOWING ELECTRIC GREEN BUTTONS (Football Predictor Style) */
     div[data-testid="stForm"] button {{
         background-color: #00E676 !important; 
         color: #000000 !important;          
@@ -243,16 +231,15 @@ with center_col:
             username = st.text_input(t["phone_label"])
             password = st.text_input(t["pass_label"], type="password")
             
-            # MAJINA YA SELECTION YAMEBADILISHWA KUWA HERUFI NDOGO ILI YAFANANE NA GITHUB YAKO SAFARI HII
+            # MAJINA YA MAFAILI YAKO KAMA YALIVYO KWENYE GITHUB
             target = st.selectbox("Chagua Sehemu / Section", ["1_transactions.py", "2_development.py", "3_sales.py"])
-            st.session_state.target_page = target
             
             btn_col1, btn_col2 = st.columns(2)
             with btn_col1:
                 if st.form_submit_button(t["proceed_btn"], use_container_width=True):
                     if username and password:
-                        st.session_state.run_redirect = True
-                        st.rerun()
+                        # NJIA YA MOJA KWA MOJA ISIYOSHITUKIZA APP (Direct Redirect)
+                        st.switch_page(f"pages/{target}")
                     else:
                         st.error(t["error_fields"])
             with btn_col2:
@@ -274,8 +261,7 @@ with center_col:
             with btn_col1:
                 if st.form_submit_button(t["complete_btn"], use_container_width=True):
                     if new_name and new_phone and new_pass:
-                        st.session_state.run_redirect = True
-                        st.rerun()
+                        st.switch_page("pages/1_transactions.py")
                     else:
                         st.error(t["error_fields"])
             with btn_col2:
