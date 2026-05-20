@@ -65,12 +65,12 @@ translations = {
         "sales_header": "💰 Broiler Sales", "label_chicks": "Total Cost of Vifaranga (TSH)",
         "label_feed": "Total Cost of Feeds (TSH)", "label_med": "Total Cost of Meds (TSH)",
         "label_other": "Total Cost of Other Expenses (TSH)", "label_mortality": "Mortality Count",
-        "label_date": "Select Date", "finish_inputs_btn": "🏁 Finish & Calculate Expenses",
-        "finish_sales_btn": "🏁 Finish & Calculate Sales", "label_qty": "Number of Chickens Sold",
+        "label_date": "Select Date to Record data:", "finish_inputs_btn": "🏁 Save Expenses for this Date",
+        "finish_sales_btn": "🏁 Save Sales for this Date", "label_qty": "Number of Chickens Sold",
         "label_price": "Price per Chicken (TSH)", "summary_header": "📊 Total Lifetime Financial Summary",
         "total_expenses": "Total Lifetime Expenses:", "total_revenue": "Total Lifetime Revenue:",
         "calc_profit_btn": "📈 Calculate Net Profit", "profit_msg": "🎉 Net Profit:", "loss_msg": "⚠️ Net Loss:",
-        "search_header": "🔍 Search Records by Date", "search_instruction": "Pick a date to fetch records.",
+        "search_header": "🔍 View Farm Records by Date", "search_instruction": "Pick a date to fetch records.",
         "no_records": "❌ No records found.", "day_summary": "Summary for:"
     },
     "Swahili": {
@@ -88,12 +88,12 @@ translations = {
         "sales_header": "💰 Mauzo ya Kuku (Broiler Sales)", "label_chicks": "Gharama ya Vifaranga (TSH)",
         "label_feed": "Gharama ya Chakula (TSH)", "label_med": "Gharama ya Chanjo na Dawa (TSH)",
         "label_other": "Gharama Nyinginezo (TSH)", "label_mortality": "Idadi ya Waliokufa",
-        "label_date": "Chagua Tarehe", "finish_inputs_btn": "🏁 Maliza na Ukokotoe Gharama",
-        "finish_sales_btn": "🏁 Maliza na Ukokotoe Mauzo", "label_qty": "Idadi ya Kuku Waliouzwa",
+        "label_date": "Chagua Tarehe unayotaka kusajili data:", "finish_inputs_btn": "🏁 Hifadhi Matumizi ya Tarehe Hii",
+        "finish_sales_btn": "🏁 Hifadhi Mauzo ya Tarehe Hii", "label_qty": "Idadi ya Kuku Waliouzwa",
         "label_price": "Bei kwa Kila Kuku (TSH)", "summary_header": "📊 Muhtasari wa Jumla wa Mapato na Faida",
         "total_expenses": "Jumla ya Matumizi:", "total_revenue": "Jumla ya Mapato:",
         "calc_profit_btn": "📈 Piga Hesabu ya Net Profit", "profit_msg": "🎉 Shamba limeingiza FAIDA ya", "loss_msg": "⚠️ Shamba limeingiza HASARA ya",
-        "search_header": "🔍 Tafuta Kumbukumbu kwa Tarehe", "search_instruction": "Chagua tarehe kupata data.",
+        "search_header": "🔍 Angalia Kumbukumbu kwa Tarehe", "search_instruction": "Chagua tarehe kupata data.",
         "no_records": "❌ Hakuna kumbukumbu tarehe hii.", "day_summary": "Muhtasari wa:"
     }
 }
@@ -116,11 +116,9 @@ st.markdown(f"""
     label[data-testid="stWidgetLabel"] p {{ color: #FFFFFF !important; font-weight: 700 !important; }}
     input {{ background-color: #FFFFFF !important; color: #000000 !important; font-weight: 600 !important; border-radius: 8px !important; }}
     
-    /* Mtindo wa Vitufe vya Kawaida vya Streamlit */
     div.stButton > button {{ background-color: #00E676 !important; color: #000000 !important; border-radius: 12px !important; border: none !important; padding: 12px 24px !important; font-weight: 700 !important; width: 100%; }}
     div.stButton > button:hover {{ background-color: #00FF5E !important; transform: scale(1.02); }}
     
-    /* Mtindo Maalum kwa ajili ya Kitufe cha Link cha Selar kionekane vizuri */
     div.stLinkButton > a {{
         background-color: #2563eb !important; 
         color: #FFFFFF !important; 
@@ -149,6 +147,13 @@ st.markdown(f"""
         padding: 30px !important;
         text-align: center;
         margin-top: 20px;
+    }}
+    .data-display {{
+        background-color: #222222;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 5px solid #38bdf8;
+        margin-top: 10px;
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -213,12 +218,11 @@ if not st.session_state.logged_in:
                 st.rerun()
 
 # ==========================================
-# SEHEMU YA 2: BANGO LA MALIPO (SASA LINATUMIA STREAMLIT LINK BUTTON!)
+# SEHEMU YA 2: BANGO LA MALIPO (IMELINDWA)
 # ==========================================
 elif st.session_state.logged_in and not st.session_state.is_activated:
     _, center_gate, _ = st.columns([1, 2.2, 1])
     with center_gate:
-        # Tunatengeneza sanduku la maelezo kwa Markdown safi kabisa bila HTML zilizochanganyika
         st.markdown("""
         <div class="activation-box">
             <h3 style="color: #38bdf8; margin-top:0; font-weight:700;">🔓 Uamilishaji wa Akaunti ya Shamba / Account Activation</h3>
@@ -226,29 +230,24 @@ elif st.session_state.logged_in and not st.session_state.is_activated:
                 Lipia uamilishaji wa mwezi mmoja ili kupata huduma zote za usimamizi wa kuku wako.
             </p>
             <p style="color: #00E676; font-size: 14px; font-weight: 600; margin-bottom: 20px;">
-                Easy payment via Tigo Pesa, Halopesa, M-Pesa, or Airtel Money.
+                Easy payment via Tigo Pesa, M-Pesa, or Airtel Money.
             </p>
         </div>
         """, unsafe_allow_html=True)
         
-        # Hapa tunatumia Kitufe halisi cha asili cha Streamlit, hakiwezi kugoma!
+        # Link halisi ya Selar
         st.link_button(
             label="🐔 BONYEZA HAPA KULIPIA / 1-MONTH PASS (10,000 TZS)", 
             url="https://selar.co/9o12h598n9"
         )
-        
         st.write("<br>", unsafe_allow_html=True)
-        st.info("💡 Mfumo utakufungulia dashibodi yenyewe mara tu ukimaliza kulipa kule Selar. Kama ukichelewa au ukirudi kwa mkono, bonyeza kitufe cha chini.")
-        
-        if st.button("Fungua Dashibodi Sasa 🚀"):
-            st.session_state.is_activated = True
-            st.rerun()
+        st.warning("⚠️ Dashibodi itafunguka yenyewe pindi utakapomaliza malipo yako kule Selar na kurudishwa kwenye mfumo.")
 
 # ==========================================
 # SEHEMU YA 3: DASHBOARD & TRANSACTIONS
 # ==========================================
 else:
-    # Safisha query params ili bango lisitokee tena mpaka log out
+    # Safisha query params za malipo ili kuzuia upenyo
     if st.query_params:
         st.query_params.clear()
         
@@ -295,12 +294,34 @@ else:
                 if net_profit > 0: st.success(f"{t['profit_msg']} {net_profit:,.2f} TSH")
                 else: st.error(f"{t['loss_msg']} {abs(net_profit):,.2f} TSH")
 
-        # Search
+        # Sehemu ya Kutafuta Data kwa Tarehe (Search Engine Fixed)
         st.write("<br><hr style='border-color: #333;'><br>", unsafe_allow_html=True)
         _, search_col, _ = st.columns([0.5, 3, 0.5])
         with search_col:
-            st.date_input(t['search_header'], value=date.today(), key="farm_search_date_picker")
+            st.markdown(f"<h3 style='color: white; margin-bottom:10px;'>{t['search_header']}</h3>", unsafe_allow_html=True)
+            search_date = st.date_input("", value=date.today(), key="farm_search_date_picker")
+            search_date_str = str(search_date)
+            
+            if search_date_str in st.session_state.farm_database:
+                data_found = st.session_state.farm_database[search_date_str]
+                st.markdown(f"""
+                <div class="data-display">
+                    <h4 style="color:#00E676; margin-top:0;">📅 {t['day_summary']} {search_date_str}</h4>
+                    <p style="color:white; margin:4px 0;">• Vifaranga: <b>{data_found['chicks_cost']:,.1f} TSH</b></p>
+                    <p style="color:white; margin:4px 0;">• Chakula: <b>{data_found['feed_cost']:,.1f} TSH</b></p>
+                    <p style="color:white; margin:4px 0;">• Dawa: <b>{data_found['med_cost']:,.1f} TSH</b></p>
+                    <p style="color:white; margin:4px 0;">• Nyinginezo: <b>{data_found['other_cost']:,.1f} TSH</b></p>
+                    <p style="color:#FF5252; margin:4px 0;">• Idadi ya Vifo: <b>{data_found['mortality']} Kuku</b></p>
+                    <hr style="border-color:#444; margin:10px 0;">
+                    <p style="color:white; margin:4px 0;">• Kuku Waliouzwa: <b>{data_found['sales_qty']}</b></p>
+                    <p style="color:white; margin:4px 0;">• Bei kwa Kuku: <b>{data_found['sales_price']:,.1f} TSH</b></p>
+                    <p style="color:#00E676; margin:4px 0;">• Mapato ya Siku: <b>{data_found['sales_revenue']:,.1f} TSH</b></p>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.warning(t["no_records"])
                 
+        st.write("<br><br>", unsafe_allow_html=True)
         if st.button("Logout (Ondoka)"):
             st.session_state.logged_in = False
             st.session_state.is_activated = False
@@ -311,31 +332,53 @@ else:
         _, center_form, _ = st.columns([1, 2, 1])
         with center_form:
             if st.button(t["back_btn"]): st.session_state.sub_view = "dashboard"; st.rerun()
+            
+            # TAREHE IPO NJE YA FOMU ILI STREAMLIT ISOME PAPO HAPO UNAPOBADILISHA!
+            chosen_date = st.date_input(t["label_date"], value=date.today())
+            date_str = str(chosen_date)
+            init_date_entry(date_str)
+            current_entry = st.session_state.farm_database[date_str]
+            
             with st.form(key="inputs_data_capture"):
-                chosen_date = st.date_input(t["label_date"], value=date.today())
-                date_str = str(chosen_date)
-                init_date_entry(date_str)
-                current_entry = st.session_state.farm_database[date_str]
                 chicks = st.number_input(t["label_chicks"], value=current_entry["chicks_cost"])
                 feeds = st.number_input(t["label_feed"], value=current_entry["feed_cost"])
                 meds = st.number_input(t["label_med"], value=current_entry["med_cost"])
                 other = st.number_input(t["label_other"], value=current_entry["other_cost"])
-                mortality = st.number_input(t["label_mortality"], value=current_entry["mortality"])
+                mortality = st.number_input(t["label_mortality"], value=current_entry["mortality"], step=1)
+                
                 if st.form_submit_button(t["finish_inputs_btn"]):
-                    st.session_state.farm_database[date_str].update({"chicks_cost": chicks, "feed_cost": feeds, "med_cost": meds, "other_cost": other, "mortality": mortality, "has_inputs": True})
-                    st.session_state.sub_view = "dashboard"; st.rerun()
+                    st.session_state.farm_database[date_str].update({
+                        "chicks_cost": chicks, 
+                        "feed_cost": feeds, 
+                        "med_cost": meds, 
+                        "other_cost": other, 
+                        "mortality": int(mortality), 
+                        "has_inputs": True
+                    })
+                    st.session_state.sub_view = "dashboard"
+                    st.rerun()
 
     elif st.session_state.sub_view == "withdraw":
         _, center_form, _ = st.columns([1, 2, 1])
         with center_form:
             if st.button(t["back_btn"]): st.session_state.sub_view = "dashboard"; st.rerun()
+            
+            # TAREHE IPO NJE YA FOMU ILI STREAMLIT ISOME PAPO HAPO UNAPOBADILISHA!
+            chosen_date = st.date_input(t["label_date"], value=date.today())
+            date_str = str(chosen_date)
+            init_date_entry(date_str)
+            current_entry = st.session_state.farm_database[date_str]
+            
             with st.form(key="sales_data_capture"):
-                chosen_date = st.date_input(t["label_date"], value=date.today())
-                date_str = str(chosen_date)
-                init_date_entry(date_str)
-                current_entry = st.session_state.farm_database[date_str]
-                qty = st.number_input(t["label_qty"], value=current_entry["sales_qty"])
+                qty = st.number_input(t["label_qty"], value=current_entry["sales_qty"], step=1)
                 price = st.number_input(t["label_price"], value=6500.0 if current_entry["sales_price"] == 0.0 else current_entry["sales_price"])
+                
                 if st.form_submit_button(t["finish_sales_btn"]):
-                    st.session_state.farm_database[date_str].update({"sales_qty": qty, "sales_price": price, "sales_revenue": float(qty * price), "has_sales": True})
-                    st.session_state.sub_view = "dashboard"; st.rerun()
+                    st.session_state.farm_database[date_str].update({
+                        "sales_qty": int(qty), 
+                        "sales_price": price, 
+                        "sales_revenue": float(qty * price), 
+                        "has_sales": True
+                    })
+                    st.session_state.sub_view = "dashboard"
+                    st.rerun()
