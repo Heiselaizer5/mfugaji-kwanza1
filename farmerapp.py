@@ -2,7 +2,7 @@ import streamlit as st
 
 # --- Must be the first Streamlit command ---
 st.set_page_config(
-    page_title="Mfugaji Kwanza - Login",
+    page_title="Mfugaji Kwanza",
     page_icon="🐔",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -96,7 +96,7 @@ st.markdown(f"""
 
     .main .block-container {{
         z-index: 1;
-        padding-top: 3rem !important;
+        padding-top: 5rem !important;
     }}
 
     /* Top-Left Title "MFUGAJI KWANZA" */
@@ -123,7 +123,7 @@ st.markdown(f"""
         margin-top: -5px;
     }}
 
-    /* SOLID PURE WHITE CARD CONTAINER BOX */
+    /* FIXED WHITE CARD CONTAINER BOX (Inalazimisha kila kitu kibaki ndani ya kadi safi) */
     div[data-testid="stForm"] {{
         background-color: #FFFFFF !important;
         border: none !important;
@@ -192,7 +192,7 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-st.write("<br><br><br>", unsafe_allow_html=True)
+st.write("<br><br>", unsafe_allow_html=True)
 
 # 2. Central Layout Core Router
 _, center_col, _ = st.columns([1, 1.3, 1])
@@ -231,15 +231,14 @@ with center_col:
             username = st.text_input(t["phone_label"])
             password = st.text_input(t["pass_label"], type="password")
             
-            # MAJINA YA MAFAILI YAKO KAMA YALIVYO KWENYE GITHUB
-            target = st.selectbox("Chagua Sehemu / Section", ["1_transactions.py", "2_development.py", "3_sales.py"])
+            target = st.selectbox("Chagua Sehemu / Section", ["Miamala (Transactions)", "Maendeleo (Development)", "Mauzo (Sales)"])
             
             btn_col1, btn_col2 = st.columns(2)
             with btn_col1:
                 if st.form_submit_button(t["proceed_btn"], use_container_width=True):
                     if username and password:
-                        # NJIA YA MOJA KWA MOJA ISIYOSHITUKIZA APP (Direct Redirect)
-                        st.switch_page(f"pages/{target}")
+                        st.session_state.auth_mode = f"view_{target.split(' ')[0].lower()}"
+                        st.rerun()
                     else:
                         st.error(t["error_fields"])
             with btn_col2:
@@ -261,10 +260,33 @@ with center_col:
             with btn_col1:
                 if st.form_submit_button(t["complete_btn"], use_container_width=True):
                     if new_name and new_phone and new_pass:
-                        st.switch_page("pages/1_transactions.py")
+                        st.session_state.auth_mode = "view_miamala"
+                        st.rerun()
                     else:
                         st.error(t["error_fields"])
             with btn_col2:
                 if st.form_submit_button(t["back_btn"], use_container_width=True):
                     st.session_state.auth_mode = "landing"
                     st.rerun()
+
+    # --- PAGES ZA NDANI ZILIZOUNGANISHWA SALAMA (Hapa haziwezi ku-crash tena) ---
+    elif st.session_state.auth_mode == "view_miamala":
+        with st.form(key="transactions_view"):
+            st.markdown('<div class="green-heading">💰 Ukurasa wa Miamala</div>', unsafe_allow_html=True)
+            st.write("Karibu kwenye sehemu ya kusimamia miamala yako ya shamba.")
+            if st.form_submit_button("← Toka/Back", use_container_width=True):
+                st.session_state.auth_mode = "landing"; st.rerun()
+
+    elif st.session_state.auth_mode == "view_maendeleo":
+        with st.form(key="dev_view"):
+            st.markdown('<div class="green-heading">📈 Ukurasa wa Maendeleo</div>', unsafe_allow_html=True)
+            st.write("Hapa utaona ripoti na takwimu za ukuaji wa kuku wako.")
+            if st.form_submit_button("← Toka/Back", use_container_width=True):
+                st.session_state.auth_mode = "landing"; st.rerun()
+
+    elif st.session_state.auth_mode == "view_mauzo":
+        with st.form(key="sales_view"):
+            st.markdown('<div class="green-heading">🐔 Ukurasa wa Mauzo</div>', unsafe_allow_html=True)
+            st.write("Sehemu ya kuingiza na kufuatilia mauzo ya kuku na mayai.")
+            if st.form_submit_button("← Toka/Back", use_container_width=True):
+                st.session_state.auth_mode = "landing"; st.rerun()
