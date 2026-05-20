@@ -53,7 +53,7 @@ translations = {
     "English": {
         "title": "MFUGAJI KWANZA", "subtitle": "Modern Poultry Management System",
         "login_header": "🔒 Account Login", "signup_header": "📝 Create New Account",
-        "username": "Username or Phone Number", "password": "Password", "full_name": "Full Name",
+        "username": "Username", "password": "Password", "full_name": "Full Name",
         "login_btn": "Sign In Securely 🚀", "signup_btn": "Register & Proceed to Payment 📝",
         "go_to_signup": "Don't have an account? Sign Up here", "go_to_login": "Already have an account? Log In here",
         "error_msg": "❌ Invalid Username or Password.", "error_fields": "❌ All fields are required.",
@@ -76,7 +76,7 @@ translations = {
     "Swahili": {
         "title": "MFUGAJI KWANZA", "subtitle": "Mfumo wa Kisasa wa Usimamizi wa Kuku",
         "login_header": "🔒 Ingia Kwenye Akaunti", "signup_header": "📝 Fungua Akaunti Mpya",
-        "username": "Jina la Mtumiaji / Namba ya Simu", "password": "Neno la Siri (Password)", "full_name": "Jina Lako Kamili",
+        "username": "Jina la Mtumiaji", "password": "Neno la Siri (Password)", "full_name": "Jina Lako Kamili",
         "login_btn": "Ingia Sasa 🚀", "signup_btn": "Sajili na Uendelee kwenye Malipo 📝",
         "go_to_signup": "Hauna akaunti bado? Jisajili hapa", "go_to_login": "Umeshajisajili? Ingia hapa",
         "error_msg": "❌ Jina au neno la siri sio sahihi.", "error_fields": "❌ Sehemu zote zinatakiwa kujazwa.",
@@ -115,8 +115,32 @@ st.markdown(f"""
     .summary-card-dark {{ background-color: #1A1A1A !important; border-radius: 20px !important; padding: 30px !important; border-left: 10px solid #00E676 !important; margin-top: 15px; }}
     label[data-testid="stWidgetLabel"] p {{ color: #FFFFFF !important; font-weight: 700 !important; }}
     input {{ background-color: #FFFFFF !important; color: #000000 !important; font-weight: 600 !important; border-radius: 8px !important; }}
+    
+    /* Mtindo wa Vitufe vya Kawaida vya Streamlit */
     div.stButton > button {{ background-color: #00E676 !important; color: #000000 !important; border-radius: 12px !important; border: none !important; padding: 12px 24px !important; font-weight: 700 !important; width: 100%; }}
     div.stButton > button:hover {{ background-color: #00FF5E !important; transform: scale(1.02); }}
+    
+    /* Mtindo Maalum kwa ajili ya Kitufe cha Link cha Selar kionekane vizuri */
+    div.stLinkButton > a {{
+        background-color: #2563eb !important; 
+        color: #FFFFFF !important; 
+        border-radius: 12px !important; 
+        padding: 14px 24px !important; 
+        font-weight: 700 !important; 
+        font-size: 16px !important;
+        text-align: center !important;
+        display: block !important;
+        width: 100% !important;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4) !important;
+        border: none !important;
+        text-decoration: none !important;
+    }}
+    div.stLinkButton > a:hover {{
+        background-color: #1d4ed8 !important; 
+        color: #FFFFFF !important;
+        transform: scale(1.02) !important;
+        text-decoration: none !important;
+    }}
     
     .activation-box {{
         background-color: #112233 !important;
@@ -125,23 +149,6 @@ st.markdown(f"""
         padding: 30px !important;
         text-align: center;
         margin-top: 20px;
-    }}
-    .activation-link {{
-        color: #FFFFFF !important;
-        background-color: #2563eb !important;
-        font-size: 18px !important;
-        font-weight: 700 !important;
-        text-decoration: none !important;
-        display: block;
-        padding: 15px !important;
-        border-radius: 10px !important;
-        margin: 20px 0;
-        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
-        transition: all 0.3s ease;
-    }}
-    .activation-link:hover {{
-        background-color: #1d4ed8 !important;
-        transform: scale(1.02);
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -206,28 +213,29 @@ if not st.session_state.logged_in:
                 st.rerun()
 
 # ==========================================
-# SEHEMU YA 2: BANGO LA MALIPO YA KILA MWEZI (SASA LIMEREKEBISHWA!)
+# SEHEMU YA 2: BANGO LA MALIPO (SASA LINATUMIA STREAMLIT LINK BUTTON!)
 # ==========================================
 elif st.session_state.logged_in and not st.session_state.is_activated:
     _, center_gate, _ = st.columns([1, 2.2, 1])
     with center_gate:
+        # Tunatengeneza sanduku la maelezo kwa Markdown safi kabisa bila HTML zilizochanganyika
         st.markdown("""
         <div class="activation-box">
             <h3 style="color: #38bdf8; margin-top:0; font-weight:700;">🔓 Uamilishaji wa Akaunti ya Shamba / Account Activation</h3>
             <p style="color: #DDD; font-size: 15px; margin-bottom: 10px;">
                 Lipia uamilishaji wa mwezi mmoja ili kupata huduma zote za usimamizi wa kuku wako.
             </p>
-            <p style="color: #00E676; font-size: 14px; font-weight: 600;">
-                Easy payment via Tigo Pesa, M-Pesa, or Airtel Money.
+            <p style="color: #00E676; font-size: 14px; font-weight: 600; margin-bottom: 20px;">
+                Easy payment via Tigo Pesa, Halopesa, M-Pesa, or Airtel Money.
             </p>
-            <hr style="border-color: #1f3a60;">
-            
-            <a class="activation-link" href="https://selar.co/9o12h598n9" target="_blank">
-                🐔 BONYEZA HAPA KULIPIA / 1-MONTH PASS (10,000 TZS)
-            </a>
-            
         </div>
-        """, unsafe_allow_html=True) # <--- HAPA NIMEWEKA unsafe_allow_html=True ILI HTML IFANYE KAZI!
+        """, unsafe_allow_html=True)
+        
+        # Hapa tunatumia Kitufe halisi cha asili cha Streamlit, hakiwezi kugoma!
+        st.link_button(
+            label="🐔 BONYEZA HAPA KULIPIA / 1-MONTH PASS (10,000 TZS)", 
+            url="https://selar.co/9o12h598n9"
+        )
         
         st.write("<br>", unsafe_allow_html=True)
         st.info("💡 Mfumo utakufungulia dashibodi yenyewe mara tu ukimaliza kulipa kule Selar. Kama ukichelewa au ukirudi kwa mkono, bonyeza kitufe cha chini.")
