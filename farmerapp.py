@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
+import time
 
 # --- Must be the first Streamlit command ---
 st.set_page_config(
@@ -134,7 +135,7 @@ st.markdown(f"""
         margin: auto !important;
     }}
     
-    /* DASHBOARD CARD (Inajiongeza upana yenyewe ikiwa ndani ya app) */
+    /* DASHBOARD CARD */
     .dashboard-card {{
         background-color: #FFFFFF !important;
         border-radius: 20px !important;
@@ -192,9 +193,8 @@ st.write("<br><br>", unsafe_allow_html=True)
 
 # --- CORE ROUTER ARCHITECTURE ---
 
-# ANGALIA KAMA NI LOGGED IN KWENYE DASHBOARD (Ili kuondoa kadi ndogo ya katikati)
 if st.session_state.auth_mode == "view_dashboard":
-    # Hapa tunafungua dashboard kubwa ya kurasa zote mbili (Sales & Development) kwa pamoja!
+    # Dashibodi Kuu baada ya KULIPIA au ku-LOG IN
     st.markdown("""
         <div class="dashboard-card">
             <div class="green-heading">📊 Dashibodi Kuu ya Shamba (Sales & Development)</div>
@@ -204,7 +204,6 @@ if st.session_state.auth_mode == "view_dashboard":
     
     st.write("<br>", unsafe_allow_html=True)
     
-    # Tunatengeneza Column mbili sambamba (Left: Development, Right: Sales)
     dash_col1, dash_col2 = st.columns([1.1, 0.9], gap="large")
     
     with dash_col1:
@@ -215,7 +214,6 @@ if st.session_state.auth_mode == "view_dashboard":
             </div>
         """, unsafe_allow_html=True)
         
-        # Kokotoa maendeleo ya mauzo ya nyuma
         df_sales = pd.DataFrame(st.session_state.sales_data)
         jumla_mapato = df_sales["Mapato (Tsh)"].sum()
         
@@ -235,7 +233,6 @@ if st.session_state.auth_mode == "view_dashboard":
         """, unsafe_allow_html=True)
         
         st.write("")
-        # Fomu ya mauzo ya papo kwa papo
         aina_zao = st.selectbox("Zao Lililouzwa", ["Mayai", "Kuku wa Nyama", "Kuku wa Kienyeji", "Mbolea"])
         kiasi_kilichouzwa = st.text_input("Kiasi (Mf. Kuku 15 au Tray 5)")
         pesa_iliyopatikana = st.number_input("Pesa Zilizopatikana (Tsh)", min_value=0, step=1000)
@@ -243,7 +240,6 @@ if st.session_state.auth_mode == "view_dashboard":
         st.write("<br>", unsafe_allow_html=True)
         if st.button("Hifadhi Mauzo Relasi", use_container_width=True):
             if kiasi_kilichouzwa and pesa_iliyopatikana > 0:
-                # Kurekodi tarehe na muda halisi (Live timestamp)
                 muda_sasa = datetime.now().strftime('%Y-%m-%d %H:%M')
                 st.session_state.sales_data.append({
                     "Tarehe": muda_sasa,
@@ -262,7 +258,6 @@ if st.session_state.auth_mode == "view_dashboard":
         st.rerun()
 
 else:
-    # KADI NDOGO YA KATIKATI (Kwa ajili ya Landing, Login na Signup tu)
     _, center_col, _ = st.columns([1, 1.4, 1])
     
     with center_col:
@@ -290,7 +285,7 @@ else:
                         st.session_state.auth_mode = "signup"
                         st.rerun()
 
-        # CASE B: LOGIN INPUT SCREEN (HAPA HAKUNA OPTION YA KUCHAGUA)
+        # CASE B: LOGIN INPUT SCREEN
         elif st.session_state.auth_mode == "login":
             with st.form(key="login_form"):
                 st.markdown(f'<div class="green-heading">{t["heading_login"]}</div>', unsafe_allow_html=True)
@@ -303,7 +298,6 @@ else:
                 with btn_col1:
                     if st.form_submit_button(t["proceed_btn"], use_container_width=True):
                         if username and password:
-                            # Inamrudisha moja kwa moja kwenye Dashboard iliyochanganywa
                             st.session_state.auth_mode = "view_dashboard"
                             st.rerun()
                         else:
@@ -313,7 +307,7 @@ else:
                         st.session_state.auth_mode = "landing"
                         st.rerun()
 
-        # CASE C: SIGN UP INPUT SCREEN (INAMPITISHA KWENYE MALIPO YA MIAMALA KWANZA)
+        # CASE C: SIGN UP INPUT SCREEN
         elif st.session_state.auth_mode == "signup":
             with st.form(key="signup_capture_form"):
                 st.markdown(f'<div class="green-heading">{t["heading_signup"]}</div>', unsafe_allow_html=True)
@@ -336,21 +330,33 @@ else:
                         st.session_state.auth_mode = "landing"
                         st.rerun()
 
-        # CASE D: GATEWAY YA MALIPO YA USAJILI (MIAMALA YA USAJILI)
+        # ========================================================
+        # UPDATE MPYA: GATEWAY YA PUSH MALIPO (HELA + NAMBA)
+        # ========================================================
         elif st.session_state.auth_mode == "view_miamala":
             with st.form(key="payment_gateway_form"):
-                st.markdown('<div class="green-heading">💳 Miamala na Uamilishaji</div>', unsafe_allow_html=True)
-                st.markdown('<div class="card-subtext">Kamilisha ada ya usajili ili kuamsha akaunti yako.</div>', unsafe_allow_html=True)
+                st.markdown('<div class="green-heading">💳 Malipo ya Akaunti</div>', unsafe_allow_html=True)
+                st.markdown('<div class="card-subtext">Weka kiasi na namba ya simu ili kuamsha akaunti yako moja kwa moja.</div>', unsafe_allow_html=True)
                 
-                st.info("💡 Ada ya Uamilishaji wa Mfugaji Kwanza ni **Tsh 10,000**.")
+                st.info("🐔 Ada ya kiwango cha chini ya uamilishaji ni **Tsh 10,000**.")
                 
-                njia_malipo = st.selectbox("Chagua Njia ya Malipo", ["M-Pesa", "Tigo Pesa", "Airtel Money", "Halo Pesa"])
-                muamala_id = st.text_input("Ingiza Kumbukumbu namba ya Muamala (Transaction ID)")
+                njia_malipo = st.selectbox("Chagua Mtandao", ["M-Pesa", "Tigo Pesa", "Airtel Money", "Halo Pesa"])
+                namba_ya_simu = st.text_input("Ingiza Namba ya Simu ya Malipo (Mf. 07xxxxxxxx)")
+                kiasi_hapa = st.number_input("Ingiza Kiasi cha Fedha (Tsh)", min_value=10000, value=10000, step=1000)
                 
-                if st.form_submit_button("Thibitisha Malipo", use_container_width=True):
-                    if muamala_id:
-                        st.success("🎉 Akaunti yako imeamshwa kikamilifu! Tafadhali Log In sasa.")
-                        st.session_state.auth_mode = "login"
+                st.write("")
+                
+                if st.form_submit_button("LIPA SASA (PUSH PAYMENT)", use_container_width=True):
+                    if len(namba_ya_simu) >= 10 and kiasi_hapa >= 10000:
+                        # Simulering ya Push API
+                        with st.spinner("Inatengeneza muunganisho wa mtandao... Tafadhali weka PIN ya siri kwenye simu yako."):
+                            time.sleep(3.5) # Inasubiri sekunde 3 kama notification ya simu
+                        
+                        st.success("🎉 Malipo yamefanikiwa kwa 100%! Umefunguliwa access ya Dashibodi.")
+                        time.sleep(1.5)
+                        
+                        # Inamuingiza moja kwa moja kwenye Dashibodi Kuu sasa hivi bila kudai ID
+                        st.session_state.auth_mode = "view_dashboard"
                         st.rerun()
                     else:
-                        st.error("Tafadhali ingiza Transaction ID!")
+                        st.error("Tafadhali hakikisha namba ya simu imekamilika na kiasi kiko sahihi!")
