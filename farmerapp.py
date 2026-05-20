@@ -24,6 +24,8 @@ if "auth_screen" not in st.session_state:
     st.session_state.auth_screen = "login"  # Inaweza kuwa 'login' au 'signup'
 if "profit_calculated" not in st.session_state:
     st.session_state.profit_calculated = False
+if "checkout_url" not in st.session_state:
+    st.session_state.checkout_url = None
 
 # Database ya watumiaji waliojisajili (Tunajaza admin kama default)
 if "users_db" not in st.session_state:
@@ -61,7 +63,7 @@ translations = {
         "subtitle": "Modern Poultry Management System",
         "login_header": "🔒 Account Login",
         "signup_header": "📝 Create New Account",
-        "username": "Username ",
+        "username": "Username or Phone Number",
         "password": "Password",
         "full_name": "Full Name",
         "login_btn": "Sign In Securely 🚀",
@@ -74,13 +76,13 @@ translations = {
         "login_success": "🎉 Login Successful!",
         
         # Gateway Key
-        "gate_header": "💳 Premium Account Activation",
+        "gate_header": "Premium Account Activation",
         "gate_sub": "Enter your amount and phone number below to launch your instance.",
         "gate_info": "🐔 Minimum subscription activation fee is **Tsh 10,000**.",
         "gate_carrier": "Select Payment Network",
         "gate_phone": "Enter Payment Phone Number (e.g., 07xxxxxxxx)",
         "gate_amount": "Enter Activation Amount (TSH)",
-        "gate_pay_btn": "LIPA SASA (PUSH PAYMENT) 📱",
+        "gate_pay_btn": "TENGENEZA LINK YA MALIPO 📱",
         "gate_error": "❌ Please ensure the phone number is valid and amount is at least 10,000 TSH!",
         "gate_success": "🎉 Payment successful! Dashboard access granted.",
         
@@ -126,7 +128,7 @@ translations = {
         "subtitle": "Mfumo wa Kisasa wa Usimamizi wa Kuku",
         "login_header": "🔒 Ingia Kwenye Akaunti",
         "signup_header": "📝 Fungua Akaunti Mpya",
-        "username": "Jina la Mtumiaji",
+        "username": "Jina la Mtumiaji / Namba ya Simu",
         "password": "Neno la Siri (Password)",
         "full_name": "Jina Lako Kamili",
         "login_btn": "Ingia Sasa 🚀",
@@ -140,12 +142,12 @@ translations = {
         
         # Gateway Key
         "gate_header": "💳 Uamilishaji wa Akaunti ya Shamba",
-        "gate_sub": "Weka kiasi na namba ya simu ila kuamsha akaunti yako moja kwa moja.",
+        "gate_sub": "Weka kiasi na namba ya simu ili kuandaa malipo yako.",
         "gate_info": "🐔 Ada ya kiwango cha chini ya uamilishaji ni **Tsh 10,000**.",
         "gate_carrier": "Chagua Mtandao wa Malipo",
         "gate_phone": "Ingiza Namba ya Simu ya Malipo (Mf. 07xxxxxxxx)",
         "gate_amount": "Ingiza Kiasi cha Fedha (TSH)",
-        "gate_pay_btn": "LIPA SASA (PUSH PAYMENT) 📱",
+        "gate_pay_btn": "ANDAA LINK YA MALIPO 📱",
         "gate_error": "❌ Hakikisha namba ya simu imekamilika na kiasi hakipungui Tsh 10,000!",
         "gate_success": "🎉 Malipo yamefanikiwa kwa 100%! Umefunguliwa Dashibodi kuu.",
         
@@ -305,6 +307,9 @@ if not st.session_state.logged_in:
                     username_clean = user_input.strip()
                     if username_clean in st.session_state.users_db and st.session_state.users_db[username_clean] == pass_input:
                         st.session_state.logged_in = True
+                        # Kama ni admin, mpe ruhusa ya kuingia moja kwa moja bila kulipia
+                        if username_clean == "admin":
+                            st.session_state.is_activated = True
                         st.success(t["login_success"])
                         time.sleep(1.0)
                         st.rerun()
@@ -333,6 +338,7 @@ if not st.session_state.logged_in:
                         st.session_state.users_db[username_clean] = reg_pass
                         st.session_state.logged_in = True
                         st.session_state.is_activated = False  # Anahitaji kulipia kwanza
+                        st.session_state.checkout_url = None   # Reset link
                         st.success(t["success_msg"])
                         time.sleep(1.5)
                         st.rerun()
@@ -359,12 +365,12 @@ elif st.session_state.logged_in and not st.session_state.is_activated:
             
             carrier = st.selectbox(t["gate_carrier"], ["M-Pesa", "Tigo Pesa", "Airtel Money", "Halo Pesa"])
             push_phone = st.text_input(t["gate_phone"], placeholder="07xxxxxxxx")
-            push_amount = st.number_input(t["gate_amount"], min_value=20000, value=20000, step=1000)
+            push_amount = st.number_input(t["gate_amount"], min_value=10000, value=10000, step=1000)
             
             if st.form_submit_button(t["gate_pay_btn"]):
                 phone_clean = push_phone.strip()
-                if len(phone_clean) >= 10 and push_amount >= 20000:
-                    with st.spinner("Inasafiri kwenda kwenye mtandao... Subiri kidogo na uweke PIN yako ya siri pindi ikitokea."):
+                if len(phone_clean) >= 10 and push_amount >= 10000:
+                    with st.spinner("Tunamfahamisha Selar aandae ukurasa wa malipo... Subiri sekunde chache."):
                         
                         # --- WEKA SECRET KEY YAKO HAPA CHINI ---
                         s_key = "sat_0b4334d344c97423xt3c9j13mi9qvb5709o07"
@@ -380,28 +386,29 @@ elif st.session_state.logged_in and not st.session_state.is_activated:
                             "reference": f"MK-{int(time.time())}"
                         }
                         
-                        success_flag = False
                         try:
-                            # Tunasukuma muamala kwenda Selar API
                             res = requests.post("https://api.selar.co/v1/checkout/initialize", json=payload, headers=headers, timeout=12)
                             res_data = res.json()
                             
-                            # TUNAKAGUA KAMA SELAR IMEKUBALI NA KULETA STATUS YA MAFANIKIO
                             if res.status_code == 200 and res_data.get("status") == "success":
-                                success_flag = True
+                                # Selar inatupa link ya malipo hapa, tunaiifadhi
+                                st.session_state.checkout_url = res_data["data"]["checkout_url"]
+                            else:
+                                st.error("Selar imekataa kuandaa malipo. Angalia Secret Key yako.")
                         except Exception as e:
-                            st.error(f"Imeshindwa kuunganisha API ya Malipo. Jaribu tena.")
-                        
-                    # MTU ANAINGIA TU KAMA SUCCESS_FLAG NI TRUE (YAANI MALIPO YAMEKUBALIWA)
-                    if success_flag:
-                        st.session_state.is_activated = True
-                        st.success(t["gate_success"])
-                        time.sleep(1.5)
-                        st.rerun()
-                    else:
-                        st.error("❌ Malipo hayajakamilika au umekataa kuweka PIN. Tafadhali jaribu tena.")
+                            st.error("Imeshindwa kuunganisha API ya Selar. Jaribu tena.")
                 else:
                     st.error(t["gate_error"])
+        
+        # KAMA LINK IMETENGENEZWA, TUNAMPA KITUFE CHA KWENDA KULIPIA
+        if st.session_state.checkout_url:
+            st.write("<br>", unsafe_allow_html=True)
+            st.success("🎉 Link ya malipo imekamilika! Bonyeza kitufe hapa chini kwenda kulipia kwenye mtandao wako:")
+            
+            # Kitufe hiki kinamfungulia ukurasa wa Selar upande mwingine akamalize kuweka PIN
+            st.link_button("👉 BONYEZA HAPA KULIPIA (CLICK TO PAY) 💳", st.session_state.checkout_url)
+            
+            st.warning("⚠️ Ukimaliza kulipia na kuweka PIN kule Selar, rudi hapa kisha ubonyeze kitufe cha 'Nmeshajisajili / Ingia hapa' ili mfumo ufunguke.")
 
 # ==========================================
 # SEHEMU YA 3: DASHBOARD & TRANSACTIONS (Usimamizi wa Shamba)
