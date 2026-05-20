@@ -359,12 +359,12 @@ elif st.session_state.logged_in and not st.session_state.is_activated:
             
             carrier = st.selectbox(t["gate_carrier"], ["M-Pesa", "Tigo Pesa", "Airtel Money", "Halo Pesa"])
             push_phone = st.text_input(t["gate_phone"], placeholder="07xxxxxxxx")
-            push_amount = st.number_input(t["gate_amount"], min_value=20000, value=20000, step=1000)
+            push_amount = st.number_input(t["gate_amount"], min_value=10000, value=10000, step=1000)
             
             if st.form_submit_button(t["gate_pay_btn"]):
                 phone_clean = push_phone.strip()
-                if len(phone_clean) >= 10 and push_amount >= 20000:
-                    with st.spinner("Connecting to carrier network... Weka namba ya siri kwenye simu yako kukamilisha."):
+                if len(phone_clean) >= 10 and push_amount >= 10000:
+                    with st.spinner("Inasafiri kwenda kwenye mtandao... Subiri kidogo na uweke PIN yako ya siri pindi ikitokea."):
                         
                         # --- WEKA SECRET KEY YAKO HAPA CHINI ---
                         s_key = "sat_0b4334d344c97423xt3c9j13mi9qvb5709o07"
@@ -379,17 +379,27 @@ elif st.session_state.logged_in and not st.session_state.is_activated:
                             "email": f"{phone_clean}@mfugajikwanza.com",
                             "reference": f"MK-{int(time.time())}"
                         }
+                        
+                        success_flag = False
                         try:
                             # Tunasukuma muamala kwenda Selar API
-                            res = requests.post("https://api.selar.co/v1/checkout/initialize", json=payload, headers=headers, timeout=10)
-                        except:
-                            pass
+                            res = requests.post("https://api.selar.co/v1/checkout/initialize", json=payload, headers=headers, timeout=12)
+                            res_data = res.json()
+                            
+                            # TUNAKAGUA KAMA SELAR IMEKUBALI NA KULETA STATUS YA MAFANIKIO
+                            if res.status_code == 200 and res_data.get("status") == "success":
+                                success_flag = True
+                        except Exception as e:
+                            st.error(f"Imeshindwa kuunganisha API ya Malipo. Jaribu tena.")
                         
-                        time.sleep(3.5)  # Simulated API Callback Wait
-                    st.session_state.is_activated = True
-                    st.success(t["gate_success"])
-                    time.sleep(1.5)
-                    st.rerun()
+                    # MTU ANAINGIA TU KAMA SUCCESS_FLAG NI TRUE (YAANI MALIPO YAMEKUBALIWA)
+                    if success_flag:
+                        st.session_state.is_activated = True
+                        st.success(t["gate_success"])
+                        time.sleep(1.5)
+                        st.rerun()
+                    else:
+                        st.error("❌ Malipo hayajakamilika au umekataa kuweka PIN. Tafadhali jaribu tena.")
                 else:
                     st.error(t["gate_error"])
 
